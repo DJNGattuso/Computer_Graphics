@@ -1,5 +1,6 @@
-//example skeleton code
+//modified from example skeleton code
 //modified from http://learnopengl.com/
+//Nicholas Gattuso 40007087
 
 #include "stdafx.h"
 
@@ -19,12 +20,13 @@ using namespace std;
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 800;
 
-float X = -0.3428f; float Y = -0.3428f;
-float camX = 0.0f; float camY = 0.0f; float camZ = 0.0f;
-int renderKey = 0;
-int numberFood = rand() % 15 + 1;
-glm::vec3 foodPositions[15];
-glm::vec3 camera_position;
+float X = -0.35f; float Y = -0.35f; //initial position for pacman
+float camX = 0.0f; float camY = 0.0f; float camZ = 0.0f; //initial position for the camera
+int renderKey = 0; //render key for points, lines or triangles
+int numberFood = rand() % 15 + 1; //random number of objects for pacman to get
+glm::vec3 foodPositions[15]; //positions for the food
+bool drawFood[15]; //check to draw food at a certain position
+glm::vec3 camera_position; 
 glm::vec3 triangle_scale;
 glm::mat4 projection_matrix;
 
@@ -38,6 +40,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 // Is called whenever a key is pressed/released via GLFW
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
+//functions to get a random point in the grid
 float getXPoint();
 float getYPoint();
 
@@ -166,11 +169,13 @@ int main()
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> UVs;
-	loadOBJ("pacman.obj", vertices, normals, UVs); //read the vertices from the cube.obj file;
+	loadOBJ("pacman.obj", vertices, normals, UVs); //read the vertices from the .obj file;
 
+	//loop to generate the random locations for the food positions and to initialize their drawing to true
 	for (int i = 0; i <= numberFood - 1; i++)
 	{
 		foodPositions[i] = { getXPoint(), getYPoint(), 0.0f };
+		drawFood[i] = true;
 	}
 
 	GLuint VAO, VBO,EBO;
@@ -358,6 +363,8 @@ int main()
 	GLuint transformLoc = glGetUniformLocation(shaderProgram, "model_matrix");
 	GLuint object_type_loc = glGetUniformLocation(shaderProgram, "object_type");
 
+	float markX; float markY; 
+
 	// Game loop
 	while (!glfwWindowShouldClose(window))
 	{
@@ -378,7 +385,7 @@ int main()
 		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
 
-
+		//draw the cordinate axis
 		glUniform1i(object_type_loc, 0);
 		model_matrix = glm::scale(model_matrix, glm::vec3(1.2f));
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
@@ -386,6 +393,7 @@ int main()
 		glDrawArrays(GL_LINES, 0, 6);
 		glBindVertexArray(0);
 
+		//draw pacman
 		glUniform1i(object_type_loc, 2);
 		glm::mat4 model_matrixPac;
 		glm::mat4 identityPac = glm::mat4(1.0f);
@@ -400,6 +408,7 @@ int main()
 		else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices.size()); }
 		glBindVertexArray(0);
 
+		//draw the grid
 		glUniform1i(object_type_loc, 3);
 		glm::mat4 model_matrixGrid;
 		model_matrixGrid = glm::scale(model_matrix, glm::vec3(1.5f));
@@ -408,24 +417,33 @@ int main()
 		glDrawArrays(GL_LINES, 0, 100);
 		glBindVertexArray(0);
 
-		
+		//cout << "pacman position is " << pacPosition.x << pacPosition.y << endl;
 		for (unsigned int i = 0; i <= numberFood - 1; i++)
 		{
-			if (foodPositions[i] != pacPosition)
-			{
-				glUniform1i(object_type_loc, 4);
-				glm::mat4 identityMatrix = glm::mat4(1.0f);
-				glm::mat4 model_matrix2;
-				glm::mat4 translatedM = glm::translate(model_matrix2, foodPositions[i]);
-				glm::mat4 scaledM = glm::scale(model_matrix2, glm::vec3(triangle_scale));
-				model_matrix2 = translatedM * scaledM * identityMatrix; //target = t*SCALE*R*m1 
-				glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix2));
-				glBindVertexArray(VAO);
-				if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices.size()); }
-				else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices.size()); }
-				else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices.size()); }
-				glBindVertexArray(0);
-			}
+			//if (drawFood[i] == true)
+			//{
+				//cout << "position of object " << i << " is " << foodPositions[i].x << " and " << foodPositions[i].y << endl;
+				//markX = foodPositions[i].x - pacPosition.x; markY = foodPositions[i].y - pacPosition.y;
+				//if (markX == 0.000f && markY == 0.000f) { cout << "true" << endl; drawFood[i] = false; }
+				//else 
+				//{
+					if (drawFood[i] == true)
+					{
+						glUniform1i(object_type_loc, 4);
+						glm::mat4 identityMatrix = glm::mat4(1.0f);
+						glm::mat4 model_matrix2;
+						glm::mat4 translatedM = glm::translate(model_matrix2, foodPositions[i]);
+						glm::mat4 scaledM = glm::scale(model_matrix2, glm::vec3(triangle_scale));
+						model_matrix2 = translatedM * scaledM * identityMatrix; //target = t*SCALE*R*m1 
+						glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix2));
+						glBindVertexArray(VAO);
+						if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices.size()); }
+						else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices.size()); }
+						else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices.size()); }
+						glBindVertexArray(0);
+					}
+				//}
+			//}
 		} 
 
 		// Swap the screen buffers
