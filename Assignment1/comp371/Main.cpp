@@ -27,6 +27,8 @@ int numberFood = rand() % 15 + 1; //random number of objects for pacman to get
 glm::vec3 foodPositions[15]; //positions for the food
 glm::vec3 ghostPositions[4]; //positions for the ghost
 bool drawFood[15]; //check to draw food at a certain position
+int ate = 0; //variable to monitor how many objects pacman ate
+
 glm::vec3 camera_position; 
 glm::vec3 triangle_scale;
 glm::vec3 sphere_scale;
@@ -442,7 +444,7 @@ int main()
 	GLuint object_type_loc = glGetUniformLocation(shaderProgram, "object_type");
 
 	float markX; float markY; 
-	float distanceToPacX, distanceToPacY; //variable to calculate the distance from ghost to pacman
+	float distanceToPacX, distanceToPacY, absDistanceX, absDistanceY; //variable to calculate the distance from ghost to pacman
 	int movement, countMovements[4] = { 0,0,0,0 }; //variable to decide which direction should the ghost move to
 
 	// Game loop
@@ -502,14 +504,16 @@ int main()
 		{
 			if (countMovements[i] == 150) {
 				distanceToPacX = ghostPositions[i].x - pacPosition.x;
+				absDistanceX = abs(distanceToPacX);
 				distanceToPacY = ghostPositions[i].y - pacPosition.y;
-				if (distanceToPacX == 0.000f && distanceToPacY == 0.000f) { restartGame(); }
-				else if (distanceToPacX == 0.000f)
+				absDistanceY = abs(distanceToPacY);
+				if (absDistanceX <= 0.001f && absDistanceY <= 0.001f) { restartGame(); }
+				else if (absDistanceX <= 0.001f)
 				{
 					if (distanceToPacY < 0 && ghostPositions[i].y != 1.47f) { ghostPositions[i].y += 0.140f; }
 					else if (distanceToPacY > 0 && ghostPositions[i].y != -1.47f) { ghostPositions[i].y -= 0.140f; }
 				}
-				else if (distanceToPacY == 0.000f)
+				else if (absDistanceY <= 0.001f)
 				{
 					if (distanceToPacX < 0 && ghostPositions[i].x != 1.47f) { ghostPositions[i].x += 0.140f; }
 					else if (distanceToPacX > 0 && ghostPositions[i].x != -1.47f) { ghostPositions[i].x -= 0.140f; }
@@ -555,30 +559,28 @@ int main()
 		//cout << "pacman position is " << pacPosition.x << pacPosition.y << endl;
 		for (unsigned int i = 0; i <= numberFood - 1; i++)
 		{
-			//if (drawFood[i] == true)
-			//{
+			if (drawFood[i] == true)
+			{
 				//cout << "position of object " << i << " is " << foodPositions[i].x << " and " << foodPositions[i].y << endl;
-				//markX = foodPositions[i].x - pacPosition.x; markY = foodPositions[i].y - pacPosition.y;
-				//if (markX == 0.000f && markY == 0.000f) { cout << "true" << endl; drawFood[i] = false; }
-				//else 
-				//{
-					if (drawFood[i] == true)
-					{
-						glUniform1i(object_type_loc, 4);
-						glm::mat4 identityMatrix = glm::mat4(1.0f);
-						glm::mat4 model_matrix2;
-						glm::mat4 translatedM = glm::translate(model_matrix2, foodPositions[i]);
-						glm::mat4 scaledM = glm::scale(model_matrix2, glm::vec3(sphere_scale));
-						model_matrix2 = translatedM * scaledM * identityMatrix; //target = t*SCALE*R*m1 
-						glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix2));
-						glBindVertexArray(VAO_sphere);
-						if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices2.size()); }
-						else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices2.size()); }
-						else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices2.size()); }
-						glBindVertexArray(0);
-					}
-				//}
-			//}
+				markX = abs(foodPositions[i].x - pacPosition.x); markY = abs(foodPositions[i].y - pacPosition.y);
+				if (markX <= 0.001f && markY <= 0.001f) { cout << "true" << endl; drawFood[i] = false; ate++; }
+				else 
+				{
+					glUniform1i(object_type_loc, 4);
+					glm::mat4 identityMatrix = glm::mat4(1.0f);
+					glm::mat4 model_matrix2;
+					glm::mat4 translatedM = glm::translate(model_matrix2, foodPositions[i]);
+					glm::mat4 scaledM = glm::scale(model_matrix2, glm::vec3(sphere_scale));
+					model_matrix2 = translatedM * scaledM * identityMatrix; //target = t*SCALE*R*m1 
+					glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix2));
+					glBindVertexArray(VAO_sphere);
+					if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices2.size()); }
+					else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices2.size()); }
+					else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices2.size()); }
+					glBindVertexArray(0);
+				}
+			}
+			if (ate == numberFood) { restartGame(); }
 		} 
 
 		// Swap the screen buffers
@@ -674,14 +676,17 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void restartGame()
 {
+	ate = 0;
 	X = getXPoint(); Y = getYPoint();
 	numberFood = rand() % 15 + 1;
 	for (int i = 0; i <= numberFood - 1; i++)
 	{
 		foodPositions[i] = { getXPoint(), getYPoint(), 0.0f };
+		drawFood[i] = true;
 		if (i <= 3){ ghostPositions[i] = { getXPoint(), getYPoint(), 0.0f }; }
 	}
 }
+
 float getYPoint()
 {
 	int ySection = rand() % 22 + 1;
