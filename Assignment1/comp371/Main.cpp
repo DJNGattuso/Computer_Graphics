@@ -28,6 +28,7 @@ glm::vec3 foodPositions[15]; //positions for the food
 bool drawFood[15]; //check to draw food at a certain position
 glm::vec3 camera_position; 
 glm::vec3 triangle_scale;
+glm::vec3 sphere_scale;
 glm::mat4 projection_matrix;
 
 // Constant vectors
@@ -171,17 +172,10 @@ int main()
 	std::vector<glm::vec2> UVs;
 	loadOBJ("pacman.obj", vertices, normals, UVs); //read the vertices from the .obj file;
 
-	//loop to generate the random locations for the food positions and to initialize their drawing to true
-	for (int i = 0; i <= numberFood - 1; i++)
-	{
-		foodPositions[i] = { getXPoint(), getYPoint(), 0.0f };
-		drawFood[i] = true;
-	}
-
-	GLuint VAO, VBO,EBO;
+	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+
 	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
 	GLuint vertices_VBO, normals_VBO;
 
@@ -205,6 +199,46 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
+
+	vector<glm::vec3> vertices2;
+	vector<glm::vec3> normals2;
+	vector<glm::vec2> UVs2;
+	loadOBJ("sphere.obj", vertices2, normals2, UVs2); //read the vertices from the .obj file;
+
+												   //loop to generate the random locations for the food positions and to initialize their drawing to true
+	for (int i = 0; i <= numberFood - 1; i++)
+	{
+		foodPositions[i] = { getXPoint(), getYPoint(), 0.0f };
+		drawFood[i] = true;
+	}
+
+	GLuint VAO_sphere, VBO_sphere;
+	glGenVertexArrays(1, &VAO_sphere);
+	glGenBuffers(1, &VBO_sphere);
+
+	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+	GLuint vertices_VBO_sphere, normals_VBO_sphere;
+
+	glGenVertexArrays(1, &VAO_sphere);
+	glGenBuffers(1, &vertices_VBO_sphere);
+
+	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+	glBindVertexArray(VAO_sphere);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertices_VBO_sphere);
+	glBufferData(GL_ARRAY_BUFFER, vertices2.size() * sizeof(glm::vec3), &vertices2.front(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	glGenBuffers(1, &normals_VBO_sphere);
+	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO_sphere);
+	glBufferData(GL_ARRAY_BUFFER, normals2.size() * sizeof(glm::vec3), &normals2.front(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
 
 	float colours_cordinate[] = {
 		0.0f, 1.0f, 0.0f,
@@ -357,6 +391,7 @@ int main()
 	glBindVertexArray(0);
 
 	triangle_scale = glm::vec3(.005f);
+	sphere_scale = glm::vec3(0.05f);
 
 	GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection_matrix");
 	GLuint viewMatrixLoc = glGetUniformLocation(shaderProgram, "view_matrix");
@@ -433,13 +468,13 @@ int main()
 						glm::mat4 identityMatrix = glm::mat4(1.0f);
 						glm::mat4 model_matrix2;
 						glm::mat4 translatedM = glm::translate(model_matrix2, foodPositions[i]);
-						glm::mat4 scaledM = glm::scale(model_matrix2, glm::vec3(triangle_scale));
+						glm::mat4 scaledM = glm::scale(model_matrix2, glm::vec3(sphere_scale));
 						model_matrix2 = translatedM * scaledM * identityMatrix; //target = t*SCALE*R*m1 
 						glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix2));
-						glBindVertexArray(VAO);
-						if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices.size()); }
-						else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices.size()); }
-						else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices.size()); }
+						glBindVertexArray(VAO_sphere);
+						if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices2.size()); }
+						else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices2.size()); }
+						else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices2.size()); }
 						glBindVertexArray(0);
 					}
 				//}
@@ -464,7 +499,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		if (X + 0.140f <= 1.61f) {
+		if (X + 0.140f <= 1.47f) {
 			X += 0.140f;}			//add rotation for orientation change
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
@@ -474,7 +509,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		if (Y + 0.140f <= 1.61) {
+		if (Y + 0.140f <= 1.47) {
 			Y += 0.140f;}
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -485,11 +520,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
 	{
-		triangle_scale += 0.01;
+		triangle_scale += 0.001;
+		sphere_scale += 0.01;
 	}
 	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
 	{
-		triangle_scale -= 0.01;
+		triangle_scale -= 0.001;
+		sphere_scale -= 0.01;
 	}
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
