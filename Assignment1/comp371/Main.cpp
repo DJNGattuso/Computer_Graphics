@@ -25,6 +25,7 @@ float camX = 0.0f; float camY = 0.0f; float camZ = 0.0f; //initial position for 
 int renderKey = 0; //render key for points, lines or triangles
 int numberFood = rand() % 15 + 1; //random number of objects for pacman to get
 glm::vec3 foodPositions[15]; //positions for the food
+glm::vec3 ghostPositions[4]; //positions for the ghost
 bool drawFood[15]; //check to draw food at a certain position
 glm::vec3 camera_position; 
 glm::vec3 triangle_scale;
@@ -40,6 +41,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 // Is called whenever a key is pressed/released via GLFW
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+
+void restartGame(); //function to restart the game
 
 //functions to get a random point in the grid
 float getXPoint();
@@ -240,6 +243,46 @@ int main()
 
 	glBindVertexArray(0);
 
+
+	vector<glm::vec3> vertices3;
+	vector<glm::vec3> normals3;
+	vector<glm::vec2> UVs3;
+	loadOBJ("teapot.obj", vertices3, normals3, UVs3); //read the vertices from the .obj file;
+
+	//loop to generate the random locations for the ghost positions
+	for (int i = 0; i <= 3; i++)
+	{
+		ghostPositions[i] = { getXPoint(), getYPoint(), 0.0f };
+	}
+
+	GLuint VAO_ghost, VBO_ghost;
+	glGenVertexArrays(1, &VAO_ghost);
+	glGenBuffers(1, &VBO_ghost);
+
+	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+	GLuint vertices_VBO_ghost, normals_VBO_ghost;
+
+	glGenVertexArrays(1, &VAO_ghost);
+	glGenBuffers(1, &vertices_VBO_ghost);
+
+	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+	glBindVertexArray(VAO_ghost);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vertices_VBO_ghost);
+	glBufferData(GL_ARRAY_BUFFER, vertices3.size() * sizeof(glm::vec3), &vertices3.front(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	glGenBuffers(1, &normals_VBO_ghost);
+	glBindBuffer(GL_ARRAY_BUFFER, normals_VBO_ghost);
+	glBufferData(GL_ARRAY_BUFFER, normals3.size() * sizeof(glm::vec3), &normals3.front(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+
 	float colours_cordinate[] = {
 		0.0f, 1.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
@@ -399,6 +442,8 @@ int main()
 	GLuint object_type_loc = glGetUniformLocation(shaderProgram, "object_type");
 
 	float markX; float markY; 
+	float distanceToPacX, distanceToPacY; //variable to calculate the distance from ghost to pacman
+	int movement, countMovements[4] = { 0,0,0,0 }; //variable to decide which direction should the ghost move to
 
 	// Game loop
 	while (!glfwWindowShouldClose(window))
@@ -428,6 +473,15 @@ int main()
 		glDrawArrays(GL_LINES, 0, 6);
 		glBindVertexArray(0);
 
+		//draw the grid
+		glUniform1i(object_type_loc, 3);
+		glm::mat4 model_matrixGrid;
+		model_matrixGrid = glm::scale(model_matrix, glm::vec3(1.5f));
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrixGrid));
+		glBindVertexArray(VAO3);
+		glDrawArrays(GL_LINES, 0, 100);
+		glBindVertexArray(0);
+
 		//draw pacman
 		glUniform1i(object_type_loc, 2);
 		glm::mat4 model_matrixPac;
@@ -443,14 +497,60 @@ int main()
 		else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices.size()); }
 		glBindVertexArray(0);
 
-		//draw the grid
-		glUniform1i(object_type_loc, 3);
-		glm::mat4 model_matrixGrid;
-		model_matrixGrid = glm::scale(model_matrix, glm::vec3(1.5f));
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrixGrid));
-		glBindVertexArray(VAO3);
-		glDrawArrays(GL_LINES, 0, 100);
-		glBindVertexArray(0);
+		//draw ghost
+		for (int i = 0; i <= 3; i++)
+		{
+			if (countMovements[i] == 150) {
+				distanceToPacX = ghostPositions[i].x - pacPosition.x;
+				distanceToPacY = ghostPositions[i].y - pacPosition.y;
+				if (distanceToPacX == 0.000f && distanceToPacY == 0.000f) { restartGame(); }
+				else if (distanceToPacX == 0.000f)
+				{
+					if (distanceToPacY < 0 && ghostPositions[i].y != 1.47f) { ghostPositions[i].y += 0.140f; }
+					else if (distanceToPacY > 0 && ghostPositions[i].y != -1.47f) { ghostPositions[i].y -= 0.140f; }
+				}
+				else if (distanceToPacY == 0.000f)
+				{
+					if (distanceToPacX < 0 && ghostPositions[i].x != 1.47f) { ghostPositions[i].x += 0.140f; }
+					else if (distanceToPacX > 0 && ghostPositions[i].x != -1.47f) { ghostPositions[i].x -= 0.140f; }
+				}
+				else
+				{
+					movement = rand() % 2 + 1; //choice between 1 and 2
+
+					if (movement == 1)
+					{
+						if (distanceToPacX < 0 && ghostPositions[i].x != 1.47f) { ghostPositions[i].x += 0.140f; }
+						else if (distanceToPacX > 0 && ghostPositions[i].x != -1.47f){ ghostPositions[i].x -= 0.140f; }
+					}
+					else
+					{
+						if (distanceToPacY < 0 && ghostPositions[i].y != 1.47f) { ghostPositions[i].y += 0.140f; }
+						else if (distanceToPacY > 0 && ghostPositions[i].y != -1.47f) { ghostPositions[i].y -= 0.140f; }
+					}
+				}
+				countMovements[i] = 0;
+			}
+			++countMovements[i];
+
+			float timeValue = glfwGetTime() * 2.0f;
+			float firstValue = (sin(timeValue) / 2.0f) + 0.5f;
+			int vertexColorLocation = glGetUniformLocation(shaderProgram, "uniformColor");
+			glUniform4f(vertexColorLocation, 0.2f, firstValue, 0.5f, 1.0f);
+
+			glUniform1i(object_type_loc, 5);
+			glm::mat4 model_matrixGhost;
+			glm::mat4 identityGhost = glm::mat4(1.0f);
+			glm::mat4 translateGhost = glm::translate(model_matrixGhost, ghostPositions[i]);
+			glm::mat4 scaleGhost = glm::scale(model_matrixGhost, glm::vec3(sphere_scale * 2.0f));
+			model_matrixGhost = translateGhost * scaleGhost * identityGhost;
+			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrixGhost));
+			glBindVertexArray(VAO_ghost);
+			if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices3.size()); }
+			else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices3.size()); }
+			else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices3.size()); }
+			glBindVertexArray(0);
+		}
 
 		//cout << "pacman position is " << pacPosition.x << pacPosition.y << endl;
 		for (unsigned int i = 0; i <= numberFood - 1; i++)
@@ -509,7 +609,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		if (Y + 0.140f <= 1.47) {
+		if (Y + 0.140f <= 1.47f) {
 			Y += 0.140f;}
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -562,12 +662,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
 	{
-		X = getXPoint(); Y = getYPoint();
-		numberFood = rand() % 15 + 1;
-		for (int i = 0; i <= numberFood - 1; i++)
-		{
-			foodPositions[i] = { getXPoint(), getYPoint(), 0.0f };
-		}
+		restartGame();
 	}
 }
 
@@ -577,6 +672,16 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	glViewport(0, 0, width, height);
 }
 
+void restartGame()
+{
+	X = getXPoint(); Y = getYPoint();
+	numberFood = rand() % 15 + 1;
+	for (int i = 0; i <= numberFood - 1; i++)
+	{
+		foodPositions[i] = { getXPoint(), getYPoint(), 0.0f };
+		if (i <= 3){ ghostPositions[i] = { getXPoint(), getYPoint(), 0.0f }; }
+	}
+}
 float getYPoint()
 {
 	int ySection = rand() % 22 + 1;
