@@ -43,6 +43,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 // Is called whenever a key is pressed/released via GLFW
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mode);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 void restartGame(); //function to restart the game
 
@@ -71,8 +74,12 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); //call function to readjust size
+	
 	// Set the required callback functions
-	glfwSetKeyCallback(window, key_callback);
+	glfwSetKeyCallback(window, key_callback); //for keyboards
+	glfwSetCursorPosCallback(window, cursor_position_callback); //for cursor
+	glfwSetMouseButtonCallback(window, mouse_button_callback); //for mouse buttons
+	glfwSetScrollCallback(window, scroll_callback); //for scroll
 
 	// Set this to true so GLEW knows to use a modern approach to retrieving function pointers and extensions
 	glewExperimental = GL_TRUE;
@@ -666,6 +673,22 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		restartGame();
 	}
+}
+
+void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mode)
+{
+	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS){}
+
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+
 }
 
 //callback function for whenever the window size changes
