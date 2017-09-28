@@ -13,37 +13,41 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 #include "objloader.hpp"  //include the object loader
-
 using namespace std;
 
 // Window dimensions
 const GLuint WIDTH = 800, HEIGHT = 800;
 
-float X = -0.35f; float Y = -0.35f;							//initial position for pacman
-float camX = 0.0f; float camY = 0.0f; float camZ = 0.0f;	//initial position for the camera
-glm::vec3 rotationVec = { 1.0f, 0.0f, 0.0f };					//initial rotation vec for pacman's rotation
-int renderKey = 0;											//render key for points, lines or triangles
-int numberFood = rand() % 15 + 1;							//random number of objects for pacman to get
+//variables for pacman -------------------------------------------------------------------------------------------------
+float X = -0.35f; float Y = -0.35f;					//initial position for pacman
+glm::vec3 rotationVec = { 1.0f, 0.0f, 0.0f };		//initial rotation vec for pacman's rotation
+int ate = 0;										//variable to monitor how many objects pacman ate
+float angle = 270.0f;								//variable to rotate pacman
+
+//variables for the food and ghost ----------------------------------------------------------------------------------------
+int numberFood = rand() % 15 + 1;		//random number of objects for pacman to get
 glm::vec3 foodPositions[15];			//positions for the food
 glm::vec3 ghostPositions[4];			//positions for the ghost
-bool drawFood[15];				//check to draw food at a certain position
-int ate = 0;					//variable to monitor how many objects pacman ate
-float angle = 270.0f;				//variable to rotate pacman
-glm::vec3 triangle_scale;
-glm::vec3 sphere_scale;
+bool drawFood[15];						//check to draw food at a certain position
+
+int renderKey = 0;	//render key for points, lines or triangles
+
+// object scaling variables + defining projection matrix-------------------------------------------------------------------
+glm::vec3 triangle_scale;		//scale for pacman
+glm::vec3 sphere_scale;			//scale for sphere objects
 glm::mat4 projection_matrix;
+
 
 bool optionRight = false, optionLeft = false, optionMid = false; //variables to track the mouse click
 
-// Variables for camera
+//Variables for camera ------------------------------------------------------------------------------------------------------
 const glm::vec3 center(0.0f, 0.0f, 0.0f);
 const glm::vec3 up(0.0f, 1.0f, 0.0f);
-glm::vec3 camPos(0.0f + camX, 0.0f + camY, 3.0f + camZ); //changes to the camera will be applied here
-glm::vec3 eye; //eye will be assigned in loop
-glm::mat4 worldOrigine(1.0f); //world origine
-//define a world origine and refer to it using multiplication of the two vectors 
+glm::vec3 eye(0.0f, 0.0f, 3.0f);	
+float panX = 0.0f, tiltY = 0.0f, zoom = 1.0f;		//variables that will be adjusted through cursor callback
+float rotAnglex = 0.0f, rotAngley = 0.0f;			//variables to be adjusted through key callback
 
-// Callback functions
+// Callback functions + funtions------------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
@@ -55,7 +59,7 @@ void restartGame(); //function to restart the game
 float getXPoint();
 float getYPoint();
 
-// The MAIN function
+// The MAIN function---------------------------------------------------------------------------------------------------------------
 int main()
 {
 	std::cout << "Starting Pacman Assignment Nicholas Gattuso" << std::endl;
@@ -474,10 +478,19 @@ int main()
 
 		//set the camera
 		glm::mat4 view_matrix;
-		eye = camPos;
+		glm::mat4 model_matrix;
 		view_matrix = glm::lookAt(eye, center, up);
 
-		glm::mat4 model_matrix;
+
+		//adjust camera based on mouse actions
+		//view_matrix = glm::translate(view_matrix, glm::vec3(panX, 0.0f, 0.0f));
+		//view_matrix = glm::rotate(view_matrix, glm::radians(tiltY), glm::vec3(0.0f, 0.0f, 1.0f));
+		//view_matrix = glm::scale(view_matrix, glm::vec3(zoom));
+		//adjust camera based on key actions
+		view_matrix = glm::rotate(view_matrix, glm::radians(rotAnglex), glm::vec3(1.0f, 0.0f, 0.0f));
+		view_matrix = glm::rotate(view_matrix, glm::radians(rotAngley), glm::vec3(0.0f, 1.0f, 0.0f));
+
+
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
 		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
@@ -662,19 +675,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
-		camX -= 0.1f;
+		rotAngley -= 0.5f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
 	{
-		camX += 0.1f;
+		rotAngley += 0.5f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
 	{
-		camY += 0.1f;
+		rotAnglex += 0.5f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
 	{
-		camY -= 0.1f;
+		rotAnglex -= 0.5f;
 	}
 	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
 	{
@@ -698,31 +711,30 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS)
 	{
-		camX = 0.0f; camY = 0.0f; camZ = 0.0f;
+		rotAnglex = 0.0f; rotAngley = 0.0f;
 	}
 }
 
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	double oldPosition;
+	double oldPosition = 0;
 	if (optionRight == true) //right button on mouse is pressed
 	{
+		float xoffset = static_cast<float>(xpos - oldPosition);
 		oldPosition = xpos;
-		
-		if ((xpos - oldPosition) > 0) { camX += 0.1f; } //cursor moving right moves camera right
-		else { camX -= 0.1f; } //camera moving left moves camera left
+		panX = xoffset;
 	}
 	else if (optionMid == true) //middle button on mouse is pressed
 	{
+		float yoffset = static_cast<float>(oldPosition - ypos);
 		oldPosition = ypos;
-		if ((ypos - oldPosition) > 0) { camY += 0.1f; } //cursor moving right moves camera right
-		else { camY -= 0.1f; } //camera moving left moves camera left
+		tiltY = yoffset;
 	}
 	else if (optionLeft == true)
 	{
-		oldPosition = ypos;
-		if ((ypos - oldPosition) > 0) { if (camZ <= 10.0f) { camZ += 0.01f; } }//cursor moving up moves camera in
-		else { if (camZ >= 0.0f) { camZ -= 0.01f; } }//camera moving down moves camera back
+		float xoffset = static_cast<float>(xpos - oldPosition);
+		oldPosition = xpos;
+		zoom = xoffset;
 	}
 }
 
