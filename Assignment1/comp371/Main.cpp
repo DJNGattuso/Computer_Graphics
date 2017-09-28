@@ -29,17 +29,19 @@ glm::vec3 ghostPositions[4];			//positions for the ghost
 bool drawFood[15];				//check to draw food at a certain position
 int ate = 0;					//variable to monitor how many objects pacman ate
 float angle = 270.0f;				//variable to rotate pacman
-glm::vec3 camera_position; 
 glm::vec3 triangle_scale;
 glm::vec3 sphere_scale;
 glm::mat4 projection_matrix;
 
 bool optionRight = false, optionLeft = false, optionMid = false; //variables to track the mouse click
 
-// Constant vectors for camera
+// Variables for camera
 const glm::vec3 center(0.0f, 0.0f, 0.0f);
 const glm::vec3 up(0.0f, 1.0f, 0.0f);
-glm::vec3 eye(0.0f + camX, 0.0f + camY, 3.0f + camZ);
+glm::vec3 camPos(0.0f + camX, 0.0f + camY, 3.0f + camZ); //changes to the camera will be applied here
+glm::vec3 eye; //eye will be assigned in loop
+glm::mat4 worldOrigine(1.0f); //world origine
+//define a world origine and refer to it using multiplication of the two vectors 
 
 // Callback functions
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -456,7 +458,8 @@ int main()
 	int movement, countMovements[4] = { 0,0,0,0 }; //variable to decide which direction should the ghost move to
 
 	//enable for depth testing
-	//glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND | GL_DEPTH_TEST);
+	//glDepthFunc(GL_LESS);
 		
 	// Game loop
 	while (!glfwWindowShouldClose(window))
@@ -467,11 +470,11 @@ int main()
 		// Render
 		// Clear the colorbuffer
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//set the camera
 		glm::mat4 view_matrix;
-		eye = { 0.0f + camX, 0.0f + camY, 3.0f + camZ };
+		eye = camPos;
 		view_matrix = glm::lookAt(eye, center, up);
 
 		glm::mat4 model_matrix;
