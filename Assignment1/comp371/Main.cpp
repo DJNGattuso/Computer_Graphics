@@ -1,5 +1,6 @@
 //modified from example skeleton code
 //modified from http://learnopengl.com/
+//assistance from TA and Chris McArthur on attempting to get my mouse movements to work
 //Nicholas Gattuso 40007087
 
 #include "stdafx.h"
@@ -43,7 +44,6 @@ bool optionRight = false, optionLeft = false, optionMid = false; //variables to 
 //Variables for camera ------------------------------------------------------------------------------------------------------
 const glm::vec3 center(0.0f, 0.0f, 0.0f);
 const glm::vec3 up(0.0f, 1.0f, 0.0f);
-glm::vec3 eye(0.0f, 0.0f, 3.0f);	
 float panX = 0.0f, tiltY = 0.0f, zoom = 1.0f;		//variables that will be adjusted through cursor callback
 float rotAnglex = 0.0f, rotAngley = 0.0f;			//variables to be adjusted through key callback
 
@@ -51,6 +51,7 @@ float rotAnglex = 0.0f, rotAngley = 0.0f;			//variables to be adjusted through k
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+double oldPositiony = 0; double oldPositionx = 0;
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mode);
 
 void restartGame(); //function to restart the game
@@ -82,7 +83,7 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback); //call function to readjust size
 	
 	// Set the required callback functions
-	glfwSetKeyCallback(window, key_callback); //for keyboards
+	glfwSetKeyCallback(window, key_callback);					//for keyboards
 	glfwSetCursorPosCallback(window, cursor_position_callback); //for cursor
 	glfwSetMouseButtonCallback(window, mouse_button_callback); //for mouse buttons
 
@@ -96,14 +97,14 @@ int main()
 		return -1;
 	}
 
-	// Define the viewport dimensions
+	// Define the viewport dimensions----------------------------------------------------------------------------------
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 	projection_matrix = glm::perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.0f, 100.0f);
 
 
-	// Build and compile our shader program
+	// Build and compile our shader program-----------------------------------------------------------------------------
 	// Vertex shader
 	// Read the Vertex Shader code from the file
 	string vertex_shader_path = "vertexShaderPacman.vs.txt";
@@ -180,7 +181,7 @@ int main()
 
 	glUseProgram(shaderProgram);
 
-	//setup for pacman 
+	//setup for pacman --------------------------------------------------------------------------------------------------
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
 	std::vector<glm::vec2> UVs;
@@ -212,9 +213,9 @@ int main()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	glBindVertexArray(0); // Unbind VAO (it's always a good thing to unbind any buffer/array to prevent strange bugs), remember: do NOT unbind the EBO, keep it bound to this VAO
+	glBindVertexArray(0); // Unbind VAO
 
-	//set up for the spheres
+	//set up for the spheres -------------------------------------------------------------------------------------------------
 	vector<glm::vec3> vertices2;
 	vector<glm::vec3> normals2;
 	vector<glm::vec2> UVs2;
@@ -256,7 +257,7 @@ int main()
 	glBindVertexArray(0);
 
 
-	//setup for the teapot objects
+	//setup for the teapot objects--------------------------------------------------------------------------------------------------
 	vector<glm::vec3> vertices3;
 	vector<glm::vec3> normals3;
 	vector<glm::vec2> UVs3;
@@ -297,7 +298,7 @@ int main()
 	glBindVertexArray(0);
 
 
-	//setup for the axis
+	//setup for the axis--------------------------------------------------------------------------------------------------------
 	float colours_cordinate[] = {
 		0.0f, 1.0f, 0.0f,
 		0.0f, 1.0f, 0.0f,
@@ -336,7 +337,7 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 1);
 	glBindVertexArray(0);
 
-	//setup for the grid
+	//setup for the grid--------------------------------------------------------------------------------------------------------
 	float grid[] = {
 		0.8f, 0.8f, 0.0f,
 		0.8f, -0.8f, 0.0f,
@@ -449,23 +450,24 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 
+	//setup before beginning loop -------------------------------------------------------------------------------------------------
 	triangle_scale = glm::vec3(.005f);	//scaling pacman
 	sphere_scale = glm::vec3(0.05f);	//scaling spheres
 
+	//get the uniform locations from the shader ----------------------------------------------------------------------------------
 	GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection_matrix");
 	GLuint viewMatrixLoc = glGetUniformLocation(shaderProgram, "view_matrix");
 	GLuint transformLoc = glGetUniformLocation(shaderProgram, "model_matrix");
 	GLuint object_type_loc = glGetUniformLocation(shaderProgram, "object_type");
 
-	float markX; float markY; //tracking variables for when pacman and spheres are on the same position
+	float markX; float markY;	//tracking variables for when pacman and spheres are on the same position
 	float distanceToPacX, distanceToPacY, absDistanceX, absDistanceY; //variable to calculate the distance from ghost to pacman
 	int movement, countMovements[4] = { 0,0,0,0 }; //variable to decide which direction should the ghost move to
 
 	//enable for depth testing
 	glEnable(GL_BLEND | GL_DEPTH_TEST);
-	//glDepthFunc(GL_LESS);
 		
-	// Game loop
+	// Game loop------------------------------------------------------------------------------------------------------------------
 	while (!glfwWindowShouldClose(window))
 	{
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
@@ -476,28 +478,25 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//set the camera
+		//set the camera-----------------------------------------------------------------------------------------
 		glm::mat4 view_matrix;
 		glm::mat4 model_matrix;
+		glm::vec3 eye(0.0f, 0.0f, 2.0f + zoom);
 		view_matrix = glm::lookAt(eye, center, up);
 
-
 		//adjust camera based on mouse actions
-		//view_matrix = glm::translate(view_matrix, glm::vec3(panX, 0.0f, 0.0f));
-		//view_matrix = glm::rotate(view_matrix, glm::radians(tiltY), glm::vec3(0.0f, 0.0f, 1.0f));
-		//view_matrix = glm::scale(view_matrix, glm::vec3(zoom));
+		view_matrix = glm::translate(view_matrix, glm::vec3(panX, 0.0f, 0.0f));
+		view_matrix = glm::rotate(view_matrix, glm::radians(tiltY), glm::vec3(0.0f, 0.0f, 1.0f));
 		//adjust camera based on key actions
 		view_matrix = glm::rotate(view_matrix, glm::radians(rotAnglex), glm::vec3(1.0f, 0.0f, 0.0f));
 		view_matrix = glm::rotate(view_matrix, glm::radians(rotAngley), glm::vec3(0.0f, 1.0f, 0.0f));
-
 
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
 		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
 
-		
-
-		//draw the cordinate axis
+	
+		//draw the cordinate axis----------------------------------------------------------------------------------
 		glm::mat4 model_matrixCordinates;
 		glUniform1i(object_type_loc, 0);
 		model_matrixCordinates = glm::scale(model_matrixCordinates, glm::vec3(1.2f));
@@ -506,7 +505,7 @@ int main()
 		glDrawArrays(GL_LINES, 0, 6);
 		glBindVertexArray(0);
 
-		//draw the grid
+		//draw the grid---------------------------------------------------------------------------------------------
 		glUniform1i(object_type_loc, 3);
 		glm::mat4 model_matrixGrid;
 		model_matrixGrid = glm::scale(model_matrixGrid, glm::vec3(1.785f));
@@ -515,23 +514,26 @@ int main()
 		glDrawArrays(GL_LINES, 0, 100);
 		glBindVertexArray(0);
 
-		//draw pacman
+		//draw pacman-------------------------------------------------------------------------------------------------
 		glUniform1i(object_type_loc, 2);
 		glm::mat4 model_matrixPac;
 		glm::mat4 identityPac = glm::mat4(1.0f); //identity matrix for pacman
 		glm::vec3 pacPosition = { X, Y, 0.0f }; //pacman's positions
+
 		glm::mat4  rotatePac = glm::rotate(model_matrixPac, glm::radians(angle), rotationVec); //rotate pacman
 		glm::mat4 translatePac = glm::translate(model_matrixPac, pacPosition);
 		glm::mat4 scalePac = glm::scale(model_matrixPac, glm::vec3(triangle_scale));
 		model_matrixPac = translatePac * scalePac * rotatePac * identityPac;
+
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrixPac));
 		glBindVertexArray(VAO);
+		//render options
 		if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices.size()); }
 		else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices.size()); }
 		else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices.size()); }
 		glBindVertexArray(0);
 
-		//draw ghost
+		//draw ghost--------------------------------------------------------------------------------------------------
 		for (int i = 0; i <= 3; i++)
 		{
 			//calculate which way to move towards pacman
@@ -578,37 +580,43 @@ int main()
 
 			//draw the ghost 
 			glUniform1i(object_type_loc, 5);
+
 			glm::mat4 model_matrixGhost;
 			glm::mat4 identityGhost = glm::mat4(1.0f);
 			glm::mat4 translateGhost = glm::translate(model_matrixGhost, ghostPositions[i]);
 			glm::mat4 scaleGhost = glm::scale(model_matrixGhost, glm::vec3(sphere_scale * 2.0f));
 			model_matrixGhost = translateGhost * scaleGhost * identityGhost;
+
 			glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrixGhost));
 			glBindVertexArray(VAO_ghost);
+			//rendering option
 			if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices3.size()); }
 			else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices3.size()); }
 			else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices3.size()); }
 			glBindVertexArray(0);
 		}
 
-		//cout << "pacman position is " << pacPosition.x << pacPosition.y << endl;
+		//draw food--------------------------------------------------------------------------------------------------------------
 		for (unsigned int i = 0; i <= numberFood - 1; i++)
 		{
 			if (drawFood[i] == true)
 			{
-				//cout << "position of object " << i << " is " << foodPositions[i].x << " and " << foodPositions[i].y << endl;
+				//calculate position of food object vs pacman's position
 				markX = abs(foodPositions[i].x - pacPosition.x); markY = abs(foodPositions[i].y - pacPosition.y);
-				if (markX <= 0.001f && markY <= 0.001f) { cout << "true" << endl; drawFood[i] = false; ate++; }
+				if (markX <= 0.001f && markY <= 0.001f) { cout << "true" << endl; drawFood[i] = false; ate++; } //pacman ate object
 				else 
 				{
 					glUniform1i(object_type_loc, 4);
+
 					glm::mat4 identityMatrix = glm::mat4(1.0f);
 					glm::mat4 model_matrixFood;
 					glm::mat4 translatedM = glm::translate(model_matrixFood, foodPositions[i]);
 					glm::mat4 scaledM = glm::scale(model_matrixFood, glm::vec3(sphere_scale));
-					model_matrixFood = translatedM * scaledM * identityMatrix; //target = t*SCALE*R*m1 
+					model_matrixFood = translatedM * scaledM * identityMatrix; //target = t*SCALE*R*m1
+
 					glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrixFood));
 					glBindVertexArray(VAO_sphere);
+					//rendering option
 					if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices2.size()); }
 					else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices2.size()); }
 					else if (renderKey == 2) { glDrawArrays(GL_LINES, 0, vertices2.size()); }
@@ -627,6 +635,7 @@ int main()
 	return 0;
 }
 
+//key callback function------------------------------------------------------------------------------------------------------------
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
 	std::cout << key << std::endl;
@@ -634,45 +643,47 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
+	//pacman's movement-----------------------------------------------------------
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		rotationVec = { 1.0f, 0.0f, 0.0f };
-		angle = 270.0f;
-		if (X + 0.140f <= 1.47f) {
-			X += 0.140f;}	
+		rotationVec = { 1.0f, 0.0f, 0.0f }; //pacman to rotate around x
+		angle = 270.0f;						//angle of rotation
+		if (X + 0.140f <= 1.47f) 
+		{ X += 0.140f;}	
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		rotationVec = { 0.0f, 1.0f, 1.0f };
-		angle = 180.0f;
+		rotationVec = { 0.0f, 1.0f, 1.0f };	//pacman to rotate around y
+		angle = 180.0f;						//angle of rotation
 		if (X - 0.140f >= -1.47f) {
 			X -= 0.140f;}
 	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		rotationVec = { 1.0f, 1.0f, 1.0f };
-		angle = 160.0f;
+		rotationVec = { 1.0f, 1.0f, 1.0f };	   //pacman to rotate around x, y, and z
+		angle = 160.0f;						   //angle of rotation
 		if (Y + 0.140f <= 1.47f) {
 			Y += 0.140f;}
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		rotationVec = { 0.0f, 0.0f, 1.0f };
-		angle = 270.0f;
+		rotationVec = { 0.0f, 0.0f, 1.0f };	  //pacman to rotate around z
+		angle = 270.0f;						  //angle of rotation
 		if (Y - 0.140f >= -1.47f) {
 			Y -= 0.140f;}
 	}
-
-	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS)
+	//scaling---------------------------------------------------------------------------------
+	if (glfwGetKey(window, GLFW_KEY_U) == GLFW_PRESS) //scale up 
 	{
 		triangle_scale += 0.001;
 		sphere_scale += 0.01;
 	}
-	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS) //scale down
 	{
 		triangle_scale -= 0.001;
 		sphere_scale -= 0.01;
 	}
+	//change orientation--------------------------------------------------------------------------
 	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
 	{
 		rotAngley -= 0.5f;
@@ -689,82 +700,103 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		rotAnglex -= 0.5f;
 	}
-	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS)
+	//change rendering mode ---------------------------------------------------------------------------
+	if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) //change to points
 	{
 		renderKey = 1;
 	}
-	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) //change to lines
 	{
 		renderKey = 2;
 	}
-	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) //change to triangles
 	{
 		renderKey = 0;
 	}
+	//change pacman's position---------------------------------------------------------------------------
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
 		X = getXPoint(); Y = getYPoint();
 	}
+	//restart game --------------------------------------------------------------------------------------
 	if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
 	{
 		restartGame();
 	}
+	//fix orientation-----------------------------------------------------------------------------------
 	if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS)
 	{
 		rotAnglex = 0.0f; rotAngley = 0.0f;
+		panX = 0.0f; tiltY = 0.0f; zoom = 1.0f;
 	}
 }
 
+
+//cursor function isn't working well--------------------------------------------------------------------------------------------
 void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	double oldPosition = 0;
-	if (optionRight == true) //right button on mouse is pressed
+	if (optionRight == true) //right button on mouse is pressed -> pan
 	{
-		float xoffset = static_cast<float>(xpos - oldPosition);
-		oldPosition = xpos;
+		float xoffset = static_cast<float>(xpos - oldPositionx);
+		oldPositionx = xpos;
+		xoffset *= 0.5;
 		panX = xoffset;
 	}
-	else if (optionMid == true) //middle button on mouse is pressed
+	else if (optionMid == true) //middle button on mouse is pressed -> tilt
 	{
-		float yoffset = static_cast<float>(oldPosition - ypos);
-		oldPosition = ypos;
+		float yoffset = static_cast<float>(oldPositiony - ypos);
+		oldPositiony = ypos;
+		yoffset *= 0.005;
 		tiltY = yoffset;
+
+		//constraints on the y axis
+		if (tiltY > 89.0f) { tiltY = 89.0f; }
+		if (tiltY < -89.0f) { tiltY = -89.0f; }
 	}
-	else if (optionLeft == true)
+	else if (optionLeft == true) //left button is pressed -> zoom
 	{
-		float xoffset = static_cast<float>(xpos - oldPosition);
-		oldPosition = xpos;
+		float xoffset = static_cast<float>(xpos - oldPositionx);
+		oldPositionx = xpos;
+		xoffset *= 0.5f;
 		zoom = xoffset;
+
+		//constraints on the z axis
+		if (zoom < 0.05f) { zoom = 0.05f; }
+		if (zoom > 1.0f) { zoom = 1.0f; }
 	}
 }
 
+//mouse callback----------------------------------------------------------------------------------------------------------------
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mode)
 {
-
+	//right button is pressed---------------------------------------------------------------------
 	if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) { optionRight = true; }
-	else { optionRight = false; }
-
+	else { optionRight = false; oldPositiony = 0; oldPositionx = 0;}
+	
+	//left butto is pressed------------------------------------------------------------------------
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) { optionLeft = true; }
-	else { optionLeft = false; }
+	else { optionLeft = false; oldPositiony = 0; oldPositionx = 0;}
 
+	//middle button is pressed---------------------------------------------------------------------
 	if (button == GLFW_MOUSE_BUTTON_MIDDLE && action == GLFW_PRESS) { optionMid = true; }
-	else { optionMid = false; }
+	else { optionMid = false; oldPositiony = 0; oldPositionx = 0;}
 }
 
 
-//callback function for whenever the window size changes
+//callback function for whenever the window size changes--------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 	projection_matrix = glm::perspective(45.0f, (GLfloat)width / (GLfloat)height, 0.0f, 100.0f);
 }
 
+//function to restart the game by repositionning all objects--------------------------------------------------------------------------
 void restartGame()
 {
 	ate = 0;
 	X = getXPoint(); Y = getYPoint();
 	numberFood = rand() % 15 + 1;
-	//camX = 0.0f; camY = 0.0f; camZ = 0.0f;
+
 	for (int i = 0; i <= numberFood - 1; i++)
 	{
 		foodPositions[i] = { getXPoint(), getYPoint(), 0.0f };
@@ -773,10 +805,12 @@ void restartGame()
 	}
 }
 
+//get random location for y-cordinate----------------------------------------------------------------------------------------------
 float getYPoint()
 {
+	//get a random value from 1 to 21 
 	int ySection = rand() % 22 + 1;
-	switch ( ySection)
+	switch ( ySection) //get coordinate according to random value
 	{
 	case 1: return -1.47f; break;
 	case 2: return -1.33f; break;
@@ -804,10 +838,11 @@ float getYPoint()
 	}
 }
 
+//get random location for x-coordinate----------------------------------------------------------------------------------------------
 float getXPoint()
 {
-	int xSection = rand() % 22 + 1;
-	switch (xSection)
+	int xSection = rand() % 22 + 1; //get random value
+	switch (xSection)				//get coordinate according to value
 	{
 	case 1: return -1.47f; break;
 	case 2: return -1.33f; break;
