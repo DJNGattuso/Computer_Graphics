@@ -478,13 +478,17 @@ int main()
 		view_matrix = glm::lookAt(eye, center, up);
 
 		glm::mat4 model_matrix;
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
 		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
 
+		
+
 		//draw the cordinate axis
+		glm::mat4 model_matrixCordinates;
 		glUniform1i(object_type_loc, 0);
-		model_matrix = glm::scale(model_matrix, glm::vec3(1.2f));
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
+		model_matrixCordinates = glm::scale(model_matrixCordinates, glm::vec3(1.2f));
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrixCordinates));
 		glBindVertexArray(VAO2);
 		glDrawArrays(GL_LINES, 0, 6);
 		glBindVertexArray(0);
@@ -492,7 +496,7 @@ int main()
 		//draw the grid
 		glUniform1i(object_type_loc, 3);
 		glm::mat4 model_matrixGrid;
-		model_matrixGrid = glm::scale(model_matrix, glm::vec3(1.5f));
+		model_matrixGrid = glm::scale(model_matrixGrid, glm::vec3(1.785f));
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrixGrid));
 		glBindVertexArray(VAO3);
 		glDrawArrays(GL_LINES, 0, 100);
@@ -586,11 +590,11 @@ int main()
 				{
 					glUniform1i(object_type_loc, 4);
 					glm::mat4 identityMatrix = glm::mat4(1.0f);
-					glm::mat4 model_matrix2;
-					glm::mat4 translatedM = glm::translate(model_matrix2, foodPositions[i]);
-					glm::mat4 scaledM = glm::scale(model_matrix2, glm::vec3(sphere_scale));
-					model_matrix2 = translatedM * scaledM * identityMatrix; //target = t*SCALE*R*m1 
-					glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix2));
+					glm::mat4 model_matrixFood;
+					glm::mat4 translatedM = glm::translate(model_matrixFood, foodPositions[i]);
+					glm::mat4 scaledM = glm::scale(model_matrixFood, glm::vec3(sphere_scale));
+					model_matrixFood = translatedM * scaledM * identityMatrix; //target = t*SCALE*R*m1 
+					glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrixFood));
 					glBindVertexArray(VAO_sphere);
 					if (renderKey == 0) { glDrawArrays(GL_TRIANGLES, 0, vertices2.size()); }
 					else if (renderKey == 1) { glDrawArrays(GL_POINTS, 0, vertices2.size()); }
