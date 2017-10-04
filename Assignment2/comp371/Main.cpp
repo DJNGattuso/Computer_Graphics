@@ -13,6 +13,7 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 #include "objloader.hpp"  //include the object loader
+#include "CImg.h"
 using namespace std;
 
 // Window dimensions
@@ -131,7 +132,7 @@ int main()
 		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
 		std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 	}
-	// Fragment shader
+	// Fragment shader---------------------------------------------------------------------------------
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 	char const * FragmentSourcePointer = FragmentShaderCode.c_str();
 	glShaderSource(fragmentShader, 1, &FragmentSourcePointer, NULL);
@@ -159,6 +160,9 @@ int main()
 
 	glUseProgram(shaderProgram);
 
+	//Get the image data---------------------------------------------------------------------------------------------------------
+	
+	
 
 	//get the uniform locations from the shader ----------------------------------------------------------------------------------
 	GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection_matrix");
