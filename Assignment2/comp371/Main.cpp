@@ -14,6 +14,7 @@
 #include "gtc/type_ptr.hpp"
 #include "objloader.hpp"  //include the object loader
 #include "CImg.h"
+using namespace cimg_library;
 using namespace std;
 
 // Window dimensions
@@ -43,6 +44,7 @@ void restartGame(); //function to restart the game
 int main()
 {
 	std::cout << "Starting Assignment 2 Nicholas Gattuso" << std::endl;
+	/*
 	// Init GLFW
 	glfwInit();
 	// Set all the required options for GLFW
@@ -172,7 +174,20 @@ int main()
 
 	//enable for depth testing
 	glEnable(GL_BLEND | GL_DEPTH_TEST);
+	*/
+	CImg<float> image;
+	
+	
+	string filePath = "colouredImage.jpg";
+	
+	image.load(filePath.c_str());
+	CImgDisplay main_disp(image, "The image");
 
+	while (!main_disp.is_closed())
+	{
+		main_disp.wait();
+	}
+	/*
 	// Game loop------------------------------------------------------------------------------------------------------------------
 	while (!glfwWindowShouldClose(window))
 	{
@@ -210,6 +225,7 @@ int main()
 	// Terminate GLFW, clearing any resources allocated by GLFW.
 	glfwTerminate();
 	return 0;
+	*/
 }
 
 	//key callback function------------------------------------------------------------------------------------------------------------
