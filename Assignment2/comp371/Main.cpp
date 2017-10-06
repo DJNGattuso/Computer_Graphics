@@ -176,18 +176,24 @@ int main()
 	//enable for depth testing
 	glEnable(GL_BLEND | GL_DEPTH_TEST);
 	*/
-
-	CImg<float> image;
 	
-	string filePath = "depth.bmp";
-	
-	image.load(filePath.c_str());
+	//--------------------------------------------------Image Setup-----------------------------------------------------
+	//---------------------Load image-------------------------------------
+	CImg<unsigned char> image("depth.bmp");
 	CImgDisplay main_disp(image, "The image");
+
+	//---------------------Get Pixel Date-----------------------------------
+	unsigned char data;
+	glReadPixels( 1, 0, image.width(), image.height(), GL_COLOR_INDEX, GL_BITMAP, &data);
+
+	cout << image.data(1,1) << " " << data;
 
 	while (!main_disp.is_closed())
 	{
 		main_disp.wait();
 	}
+
+
 
 	/*
 	int width1 = 0;
