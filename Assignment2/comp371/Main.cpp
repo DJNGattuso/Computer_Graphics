@@ -12,6 +12,7 @@
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
+#include "stb_image.h"
 #include "objloader.hpp"  //include the object loader
 #include "CImg.h"
 using namespace cimg_library;
@@ -175,10 +176,10 @@ int main()
 	//enable for depth testing
 	glEnable(GL_BLEND | GL_DEPTH_TEST);
 	*/
+
 	CImg<float> image;
 	
-	
-	string filePath = "colouredImage.jpg";
+	string filePath = "depth.bmp";
 	
 	image.load(filePath.c_str());
 	CImgDisplay main_disp(image, "The image");
@@ -187,6 +188,22 @@ int main()
 	{
 		main_disp.wait();
 	}
+
+	/*
+	int width1 = 0;
+	int height1 = 0;
+	int nchannels = 0;
+	unsigned char *data = stbi_load("colouredImage.jpg", &width1, &height1, &nchannels, 4); 
+	
+	if (data) 
+	{
+		cout << "Success to load image" << endl;
+	}
+	else { cout << "Failed to load image" << endl; }
+
+	stbi_image_free(data);
+	*/
+
 	/*
 	// Game loop------------------------------------------------------------------------------------------------------------------
 	while (!glfwWindowShouldClose(window))
