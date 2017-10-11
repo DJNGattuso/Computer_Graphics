@@ -1,10 +1,10 @@
 #version 330 core
 in vec3 col;
 uniform int object_type;
-in vec2 TexCoord;
+
 out vec4 FragColor;
 void main()
 {
 	if (object_type == 1) {FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);}
-	else {FragColor = texture(ourTexture, TexCoord);}
+	else {FragColor = vec4(0.0f, 1.0f, 1.0f, 1.0f);}
 }

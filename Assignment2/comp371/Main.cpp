@@ -45,7 +45,7 @@ void restartGame(); //function to restart the game
 int main()
 {
 	std::cout << "Starting Assignment 2 Nicholas Gattuso" << std::endl;
-	/*
+	
 	// Init GLFW
 	glfwInit();
 	// Set all the required options for GLFW
@@ -175,25 +175,17 @@ int main()
 
 	//enable for depth testing
 	glEnable(GL_BLEND | GL_DEPTH_TEST);
-	*/
+	
 	
 	//--------------------------------------------------Image Setup-----------------------------------------------------
 	//---------------------Load image-------------------------------------
 	CImg<unsigned char> image("depth.bmp");
 	CImgDisplay main_disp(image, "The image");
 
-	//---------------------Get Pixel Date-----------------------------------
-	unsigned char data;
-	glReadPixels( 1, 0, image.width(), image.height(), GL_COLOR_INDEX, GL_BITMAP, &data);
-
-	cout << image.data(1,1) << " " << data;
-
-	while (!main_disp.is_closed())
-	{
-		main_disp.wait();
-	}
-
-
+	//---------------------Get Pixel Data-----------------------------------
+	unsigned char heightImage = *image.data(1,1); //error: value of type unsigne char* cannot be used to initialize an entity of type "unsigned char"
+	float heightValue = (float)heightImage;
+	glm::vec3 pixel = glm::vec3(1, heightValue, 1);
 
 	/*
 	int width1 = 0;
@@ -210,12 +202,14 @@ int main()
 	stbi_image_free(data);
 	*/
 
-	/*
+	
 	// Game loop------------------------------------------------------------------------------------------------------------------
 	while (!glfwWindowShouldClose(window))
 	{
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
+
+		main_disp.wait();
 
 		// Render
 		// Clear the colorbuffer
@@ -248,7 +242,7 @@ int main()
 	// Terminate GLFW, clearing any resources allocated by GLFW.
 	glfwTerminate();
 	return 0;
-	*/
+	
 }
 
 	//key callback function------------------------------------------------------------------------------------------------------------
