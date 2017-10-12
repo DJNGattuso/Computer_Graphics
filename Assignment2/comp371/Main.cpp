@@ -163,29 +163,39 @@ int main()
 
 	glUseProgram(shaderProgram);
 
-	//Get the image data---------------------------------------------------------------------------------------------------------
-	
-	
-
-	//get the uniform locations from the shader ----------------------------------------------------------------------------------
-	GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection_matrix");
-	GLuint viewMatrixLoc = glGetUniformLocation(shaderProgram, "view_matrix");
-	GLuint transformLoc = glGetUniformLocation(shaderProgram, "model_matrix");
-	GLuint object_type_loc = glGetUniformLocation(shaderProgram, "object_type");
-
-	//enable for depth testing
-	glEnable(GL_BLEND | GL_DEPTH_TEST);
-	
 	
 	//--------------------------------------------------Image Setup-----------------------------------------------------
 	//---------------------Load image-------------------------------------
-	CImg<unsigned char> image("depth.bmp");
-	CImgDisplay main_disp(image, "The image");
+	CImg<float> image("depth.bmp");
+	//CImgDisplay main_disp(image, "The image");
 
 	//---------------------Get Pixel Data-----------------------------------
-	unsigned char heightImage = *image.data(1,1); //error: value of type unsigne char* cannot be used to initialize an entity of type "unsigned char"
-	float heightValue = (float)heightImage;
-	glm::vec3 pixel = glm::vec3(1, heightValue, 1);
+	vector <glm::vec3> imagePoints;
+
+	float x = 0.0f; float z = 0.0f;
+	for (CImg<float>::iterator i = image.begin(); i < image.end(); i++)
+	{
+		imagePoints.emplace_back(glm::vec3(x++, *i, z));
+		if (x == image.width()) { x = 0; z++; }
+	}
+
+	cout << imagePoints.size() << endl;
+
+	GLuint VAO_Image, VBO_Image;
+	glGenVertexArrays(1, &VAO_Image);
+	glGenBuffers(1, &VBO_Image);
+
+	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+	glBindVertexArray(VAO_Image);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_Image);
+	glBufferData(GL_ARRAY_BUFFER, imagePoints.size() * sizeof(glm::vec3), &imagePoints.front(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0); // Unbind VAO
 
 	/*
 	int width1 = 0;
@@ -202,14 +212,52 @@ int main()
 	stbi_image_free(data);
 	*/
 
-	
+	float vertices[] = {
+		0.5f, 0.5f, 0.0f,
+		0.5f, -0.5f, 0.0f,
+		-0.5f, -0.5f, 0.0f,
+		-0.5f, 0.5f, 0.0f
+	};
+	unsigned int indices[] = {
+		//first triangle
+		0, 1, 3,
+		//second triangle
+		1, 2, 3
+	};
+
+	unsigned int VBO, VAO, EBO;
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glGenBuffers(1, &EBO);
+	glBindVertexArray(VAO); //bind the Vertex Array object
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO); //bind the vertex buffer
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW); //copy defined vertex data into buffer memory
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	//linking vertex attributes
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); //3 vertex of 3 positions each of 4 bytes
+	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	//get the uniform locations from the shader ----------------------------------------------------------------------------------
+	GLuint projectionLoc = glGetUniformLocation(shaderProgram, "projection_matrix");
+	GLuint viewMatrixLoc = glGetUniformLocation(shaderProgram, "view_matrix");
+	GLuint transformLoc = glGetUniformLocation(shaderProgram, "model_matrix");
+	GLuint object_type_loc = glGetUniformLocation(shaderProgram, "object_type");
+
+	//enable for depth testing
+	//glEnable(GL_BLEND | GL_DEPTH_TEST);
+
 	// Game loop------------------------------------------------------------------------------------------------------------------
 	while (!glfwWindowShouldClose(window))
 	{
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
-
-		main_disp.wait();
 
 		// Render
 		// Clear the colorbuffer
@@ -219,21 +267,34 @@ int main()
 		//set the camera-----------------------------------------------------------------------------------------
 		glm::mat4 view_matrix;
 		glm::mat4 model_matrix;
-		glm::vec3 eye(0.0f, 0.0f, 2.0f + zoom);
+		glm::vec3 eye(0.0f, 0.0f, 5.0f + zoom);
 		view_matrix = glm::lookAt(eye, center, up);
 
+		/*
 		//adjust camera based on mouse actions
 		view_matrix = glm::translate(view_matrix, glm::vec3(panX, 0.0f, 0.0f));
 		view_matrix = glm::rotate(view_matrix, glm::radians(tiltY), glm::vec3(0.0f, 0.0f, 1.0f));
 		//adjust camera based on key actions
 		view_matrix = glm::rotate(view_matrix, glm::radians(rotAnglex), glm::vec3(1.0f, 0.0f, 0.0f));
 		view_matrix = glm::rotate(view_matrix, glm::radians(rotAngley), glm::vec3(0.0f, 1.0f, 0.0f));
+		*/
 
 		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
 		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
 		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
 
+		glUniform1i(object_type_loc, 2);
+		glBindVertexArray(VAO_Image);
+		glDrawArrays(GL_POINT, 0, imagePoints.size());
+		glBindVertexArray(0);
 
+		/*
+		glUniform1i(object_type_loc, 2);
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		*/
+		
 
 		// Swap the screen buffers
 		glfwSwapBuffers(window);
@@ -279,6 +340,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		rotAnglex = 0.0f; rotAngley = 0.0f;
 		panX = 0.0f; tiltY = 0.0f; zoom = 1.0f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
+	{
+		zoom -= 0.5f;
 	}
 }
 
