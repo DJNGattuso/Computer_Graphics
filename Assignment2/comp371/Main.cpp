@@ -26,7 +26,7 @@ glm::mat4 projection_matrix;
 bool optionRight = false, optionLeft = false, optionMid = false; //variables to track the mouse click
 
 //Variables for camera ------------------------------------------------------------------------------------------------------
-const glm::vec3 center(0.0f, 0.0f, 0.0f);
+const glm::vec3 center(0.0f, 50.0f, -60.0f);
 const glm::vec3 up(0.0f, 1.0f, 0.0f);
 float panX = 0.0f, tiltY = 0.0f, zoom = 1.0f;		//variables that will be adjusted through cursor callback
 float rotAnglex = 0.0f, rotAngley = 0.0f;			//variables to be adjusted through key callback
@@ -167,16 +167,16 @@ int main()
 	//--------------------------------------------------Image Setup-----------------------------------------------------
 	//---------------------Load image-------------------------------------
 	CImg<float> image("depth.bmp");
-	//CImgDisplay main_disp(image, "The image");
+	CImgDisplay main_disp(image, "The image");
 
 	//---------------------Get Pixel Data-----------------------------------
 	vector <glm::vec3> imagePoints;
 
-	float x = 0.0f; float z = 0.0f;
+	int x = (0 - image.width()/2); int z = (0 - image.height() / 2);
 	for (CImg<float>::iterator i = image.begin(); i < image.end(); i++)
 	{
 		imagePoints.emplace_back(glm::vec3(x++, *i, z));
-		if (x == image.width()) { x = 0; z++; }
+		if (x == image.width()) { x = (0 - image.width() / 2); z += 1; }
 	}
 
 	cout << imagePoints.size() << endl;
@@ -261,13 +261,13 @@ int main()
 
 		// Render
 		// Clear the colorbuffer
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		//set the camera-----------------------------------------------------------------------------------------
 		glm::mat4 view_matrix;
 		glm::mat4 model_matrix;
-		glm::vec3 eye(0.0f, 0.0f, 5.0f + zoom);
+		glm::vec3 eye(20.0f, 70.0f + panX, -100.0f - zoom);
 		view_matrix = glm::lookAt(eye, center, up);
 
 		/*
@@ -285,15 +285,15 @@ int main()
 
 		glUniform1i(object_type_loc, 2);
 		glBindVertexArray(VAO_Image);
-		glDrawArrays(GL_POINT, 0, imagePoints.size());
+		glDrawArrays(GL_POINTS, 0, imagePoints.size());
 		glBindVertexArray(0);
 
-		/*
+		
 		glUniform1i(object_type_loc, 2);
 		glBindVertexArray(VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
-		*/
+		
 		
 
 		// Swap the screen buffers
@@ -343,7 +343,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 	if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS)
 	{
-		zoom -= 0.5f;
+		zoom -= 5.0f;
+	}
+	if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS)
+	{
+		panX += 5.0f;
 	}
 }
 
