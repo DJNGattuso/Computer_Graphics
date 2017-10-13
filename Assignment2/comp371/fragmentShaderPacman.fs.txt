@@ -1,10 +1,8 @@
 #version 330 core
 in vec3 col;
-uniform int object_type;
 
 out vec4 FragColor;
 void main()
 {
-	if (object_type == 1) {FragColor = vec4(0.0f, 0.0f, 1.0f, 1.0f);}
-	else {FragColor = vec4(0.0f, 1.0f, 1.0f, 1.0f);}
+	FragColor = vec4(col.x, col.y, col.z, 1.0f);
 }
