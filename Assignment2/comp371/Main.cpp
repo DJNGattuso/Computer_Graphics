@@ -42,7 +42,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mode)
 vector<glm::vec3> createPoints(CImg<float> image, int skip);
 vector<glm::vec3> colourPoints(vector<glm::vec3> points);
 
+//variables to control the environment in the render mode--------------------------------------------------------------------------
 int tag = 1; //variable that will allow to change what step is being drawn
+bool getInputs = false;
+int skipsize;
 
 
 // The MAIN function---------------------------------------------------------------------------------------------------------------
@@ -201,7 +204,6 @@ int main()
 	glBindVertexArray(0); // Unbind VAO
 
 	//-------------------------------------------Setup for points with skip size-----------------------------------------------------
-	int skipsize;
 	cout << "\nPlease enter a skip-size: ";
 	cin >> skipsize;
 
@@ -260,6 +262,13 @@ int main()
 	// Game loop------------------------------------------------------------------------------------------------------------------
 	while (!glfwWindowShouldClose(window))
 	{
+		if (getInputs)
+		{
+			cout << "\nPlease enter a skip-size: ";
+			cin >> skipsize;
+
+			getInputs = false;
+		}
 
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
@@ -319,9 +328,9 @@ vector<glm::vec3> createPoints(CImg<float> image, int skip)
 	vector<glm::vec3> newPoints;
 
 	int x = (0 - image.width() / 2); int z = (0 - image.height() / 2);
-
+	cout << image.width() << endl;
 	//------------------------Loop through each pixel in the image----------------------------
-	for (CImg<float>::iterator i = image.begin(); i < image.end(); i++)
+	for (CImg<float>::iterator i = image.begin(); i < image.end(); i += skip)
 	{
 		//--------------Setup to get the heightmap representation of the pixel----------------
 		newPoints.emplace_back(glm::vec3(x++, *i, z));
@@ -415,6 +424,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) //show the skip points
 	{
 		tag = 2;
+	}
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) //show the skip points
+	{
+		getInputs = true;
 	}
 	//fix orientation-----------------------------------------------------------------------------------
 	if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS)
