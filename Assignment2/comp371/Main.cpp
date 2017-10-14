@@ -267,7 +267,7 @@ int main()
 	GLuint object_type_loc = glGetUniformLocation(shaderProgram, "object_type");
 
 	//enable for depth testing
-	//glEnable(GL_BLEND | GL_DEPTH_TEST);
+	glEnable(GL_BLEND | GL_DEPTH_TEST);
 
 
 	// Game loop------------------------------------------------------------------------------------------------------------------
@@ -277,6 +277,27 @@ int main()
 		{
 			cout << "\nPlease enter a skip-size: ";
 			cin >> skipsize;
+
+			skipPoints = createPoints(imagePoints, skipsize);
+			skipColour = colourPoints(skipPoints);
+
+			// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+			glBindVertexArray(VAO_Skip);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO_Skip);
+			glBufferData(GL_ARRAY_BUFFER, skipPoints.size() * sizeof(glm::vec3), &skipPoints.front(), GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO_SkipColour);
+			glBufferData(GL_ARRAY_BUFFER, skipColour.size() * sizeof(glm::vec3), &skipColour.front(), GL_STATIC_DRAW);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+			glEnableVertexAttribArray(1);
+
+			glBindBuffer(GL_ARRAY_BUFFER, 1);
+
+			glBindVertexArray(0); // Unbind VAO
 
 			getInputs = false;
 		}
