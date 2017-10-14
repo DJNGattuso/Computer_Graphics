@@ -26,7 +26,7 @@ glm::mat4 projection_matrix;
 bool optionRight = false, optionLeft = false, optionMid = false; //variables to track the mouse click
 
 //Variables for camera ------------------------------------------------------------------------------------------------------
-const glm::vec3 center(50.0f, 250.0f, 100.0f);
+const glm::vec3 center(0.0f, 0.0f, 0.0f);
 const glm::vec3 up(0.0f, 1.0f, 0.0f);
 float panX = 0.0f, tiltY = 0.0f, zoom = 1.0f;		//variables that will be adjusted through cursor callback
 float rotAnglex = 0.0f, rotAngley = 0.0f;			//variables to be adjusted through key callback
@@ -39,7 +39,7 @@ double oldPositiony = 0; double oldPositionx = 0;
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mode);
 
 //functions to generate points in map-------------------------------
-vector<glm::vec3> createPoints(CImg<float> image, int skip);
+vector<glm::vec3> createPoints(vector<glm::vec3> original, int skip);
 vector<glm::vec3> colourPoints(vector<glm::vec3> points);
 
 //variables to control the environment in the render mode--------------------------------------------------------------------------
@@ -177,7 +177,18 @@ int main()
 	CImgDisplay main_disp(image, "The image");
 
 	//---------------------Get Pixel Data-----------------------------------
-	vector <glm::vec3> imagePoints = createPoints(image, 1);
+	vector <glm::vec3> imagePoints;
+
+	//--------------------Loop through each pixel in the image----------------
+	for (int x = (0 - image.width() / 2); x < (image.width())/2; x++)
+	{
+		for (int z = (0 - image.height() / 2); z < (image.height()) / 2; z++)
+		{
+			float height = static_cast<float>(*image.data(x + (image.width() / 2), z + (image.height() / 2)));
+			imagePoints.emplace_back(glm::vec3(x, height, z));
+		}
+	}
+
 	vector <glm::vec3> pointsColour = colourPoints(imagePoints);
 
 	GLuint VAO_Image, VBO_Image, VBO_Colour;
@@ -207,7 +218,7 @@ int main()
 	cout << "\nPlease enter a skip-size: ";
 	cin >> skipsize;
 
-	vector<glm::vec3> skipPoints = createPoints(image, skipsize);
+	vector<glm::vec3> skipPoints = createPoints(imagePoints, skipsize);
 	vector<glm::vec3> skipColour = colourPoints(skipPoints);
 
 	GLuint VAO_Skip, VBO_Skip, VBO_SkipColour;
@@ -306,7 +317,7 @@ int main()
 			break;
 			case 2:
 				glBindVertexArray(VAO_Skip);
-				glDrawArrays(GL_POINTS, 0, imagePoints.size());
+				glDrawArrays(GL_POINTS, 0, skipPoints.size());
 				glBindVertexArray(0);
 				break;
 		}
@@ -323,22 +334,14 @@ int main()
 }
 
 //------------------------------------------Function to generate image points based on a skip----------------------------------------
-vector<glm::vec3> createPoints(CImg<float> image, int skip)
+vector<glm::vec3> createPoints(vector<glm::vec3> original, int skip)
 {
 	vector<glm::vec3> newPoints;
 
-	int x = (0 - image.width() / 2); int z = (0 - image.height() / 2);
-	cout << image.width() << endl;
 	//------------------------Loop through each pixel in the image----------------------------
-	for (CImg<float>::iterator i = image.begin(); i < image.end(); i += skip)
+	for (int i = 0; i < original.size(); i += skip)
 	{
-		//--------------Setup to get the heightmap representation of the pixel----------------
-		newPoints.emplace_back(glm::vec3(x++, *i, z));
-		if (skip > (abs(x - image.width())))
-		{
-			x = (0 - image.width() / 2); z += 1;
-		}
-		else if (x == image.width()) { x = (0 - image.width() / 2); z += 1; }
+		newPoints.emplace_back(original[i]);
 	}
 
 	return newPoints;
