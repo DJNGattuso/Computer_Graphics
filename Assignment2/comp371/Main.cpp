@@ -41,13 +41,14 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mode)
 //functions to generate points in map-------------------------------
 vector<glm::vec3> createPoints(vector<glm::vec3> original, int skip);
 vector<glm::vec3> colourPoints(vector<glm::vec3> points);
+vector<glm::vec3> CatmullRomX(vector<glm::vec3> points, float step, int height, int width);
 
 //variables to control the environment-------------------------------------------------------------------------------------------
 int tag = 1; //variable that will allow to change what step is being drawn
 bool getInputs = false;
 int skipsize;
-int stepsize;
-int trackHeight = 0; trackWidth = 0;
+float stepsize;
+int trackHeight = 0, trackWidth = 0;
 
 
 // The MAIN function---------------------------------------------------------------------------------------------------------------
@@ -244,12 +245,40 @@ int main()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 1);
 
-	glBindVertexArray(0); // Unbind VAO
+	glBindVertexArray(0);
 
 	//------------------------------------------Setup Catmull Rom for the x----------------------------------------------------------
 	cout << "\nPlease enter a step-size: ";
 	cin >> stepsize;
 
+	cout << "Getting point catx" << endl;
+	vector<glm::vec3> catXPoints = CatmullRomX(imagePoints, stepsize, image.height(), image.width());
+	cout << "Succeeded" << endl;
+	cout << "Getting colourPoint with vector of size: " << catXPoints.size() << endl;
+	vector<glm::vec3> CatXColour = colourPoints(catXPoints);
+	cout << "Succeeded" << endl;
+	GLuint VAO_CatX, VBO_CatX, VBO_CatXColour;
+	glGenVertexArrays(1, &VAO_CatX);
+	glGenBuffers(1, &VBO_CatX);
+	glGenBuffers(1, &VBO_CatXColour);
+
+	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
+	glBindVertexArray(VAO_CatX);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_CatX);
+	glBufferData(GL_ARRAY_BUFFER, catXPoints.size() * sizeof(glm::vec3), &catXPoints.front(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_CatXColour);
+	glBufferData(GL_ARRAY_BUFFER, CatXColour.size() * sizeof(glm::vec3), &CatXColour.front(), GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, 1);
+
+	glBindVertexArray(0);
+	
 	/*
 	int width1 = 0;
 	int height1 = 0;
@@ -308,50 +337,55 @@ int main()
 			getInputs = false;
 		}
 
-// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
-glfwPollEvents();
-
-// Render
-// Clear the colorbuffer
-glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-//set the camera-----------------------------------------------------------------------------------------
-glm::mat4 view_matrix;
-glm::mat4 model_matrix;
-glm::vec3 eye(0.0f + panX, 700.0f + tiltY, 0.0f + zoom);
-view_matrix = glm::lookAt(eye, center, up);
-
-/*
-//adjust camera based on mouse actions
-view_matrix = glm::translate(view_matrix, glm::vec3(panX, 0.0f, 0.0f));
-view_matrix = glm::rotate(view_matrix, glm::radians(tiltY), glm::vec3(0.0f, 0.0f, 1.0f));
-//adjust camera based on key actions
-view_matrix = glm::rotate(view_matrix, glm::radians(rotAnglex), glm::vec3(1.0f, 0.0f, 0.0f));
-view_matrix = glm::rotate(view_matrix, glm::radians(rotAngley), glm::vec3(0.0f, 1.0f, 0.0f));
-*/
-
-glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
-glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
-glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
-
-switch (tag)
-{
-case 1:
-	glBindVertexArray(VAO_Image);
-	glDrawArrays(GL_POINTS, 0, imagePoints.size());
-	glBindVertexArray(0);
-	break;
-case 2:
-	glBindVertexArray(VAO_Skip);
-	glDrawArrays(GL_POINTS, 0, skipPoints.size());
-	glBindVertexArray(0);
-	break;
-}
-
-
-// Swap the screen buffers
-glfwSwapBuffers(window);
+		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
+		glfwPollEvents();
+		
+		// Render
+		// Clear the colorbuffer
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		
+		//set the camera-----------------------------------------------------------------------------------------
+		glm::mat4 view_matrix;
+		glm::mat4 model_matrix;
+		glm::vec3 eye(0.0f + panX, 700.0f + tiltY, 0.0f + zoom);
+		view_matrix = glm::lookAt(eye, center, up);
+		
+		/*
+		//adjust camera based on mouse actions
+		view_matrix = glm::translate(view_matrix, glm::vec3(panX, 0.0f, 0.0f));
+		view_matrix = glm::rotate(view_matrix, glm::radians(tiltY), glm::vec3(0.0f, 0.0f, 1.0f));
+		//adjust camera based on key actions
+		view_matrix = glm::rotate(view_matrix, glm::radians(rotAnglex), glm::vec3(1.0f, 0.0f, 0.0f));
+		view_matrix = glm::rotate(view_matrix, glm::radians(rotAngley), glm::vec3(0.0f, 1.0f, 0.0f));
+		*/
+		
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
+		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
+		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
+		
+		switch (tag)
+		{
+		case 1:
+			glBindVertexArray(VAO_Image);
+			glDrawArrays(GL_POINTS, 0, imagePoints.size());
+			glBindVertexArray(0);
+			break;
+		case 2:
+			glBindVertexArray(VAO_Skip);
+			glDrawArrays(GL_POINTS, 0, skipPoints.size());
+			glBindVertexArray(0);
+			break;
+		case 3:
+			glBindVertexArray(VAO_CatX);
+			glDrawArrays(GL_POINTS, 0, catXPoints.size());
+			glBindVertexArray(0);
+			break;
+		}
+		
+		
+		// Swap the screen buffers
+		glfwSwapBuffers(window);
 	}
 
 	// Terminate GLFW, clearing any resources allocated by GLFW.
@@ -405,10 +439,11 @@ vector<glm::vec3> CatmullRomX(vector<glm::vec3> points, float step, int height, 
 	vector<glm::vec3> catmullRom;
 	int index = 0;
 
-	for (int j = 0; j <= height - 1; j++)
+	for (int j = 0; j <= height - 1; j++) //start at first row, go to next row until last
 	{
 		index = j;
-		for (int i = 0; i < (height * width) - (4 * height); i += height)
+		cout << "first loop" << endl;
+		for (int i = 0; i < ((height * width) - (5 * height)); i += height) //start at first column, go to next column until 4th to last
 		{
 			point0 = points[index];
 			point1 = points[index + height];
@@ -422,8 +457,6 @@ vector<glm::vec3> CatmullRomX(vector<glm::vec3> points, float step, int height, 
 			index += height;
 		}
 	}
-	
-
 	return catmullRom;
 }
 
@@ -486,6 +519,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS) //show the skip points
 	{
 		tag = 2;
+	}
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) //show the skip points
+	{
+		tag = 3;
 	}
 	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) //show the skip points
 	{
