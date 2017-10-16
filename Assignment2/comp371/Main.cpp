@@ -26,9 +26,9 @@ glm::mat4 projection_matrix;
 bool optionRight = false, optionLeft = false, optionMid = false; //variables to track the mouse click
 
 //Variables for camera ------------------------------------------------------------------------------------------------------
-const glm::vec3 center(0.0f, 0.0f, 0.0f);
+const glm::vec3 center(-30.0f, 170.0f, -50.0f);
 const glm::vec3 up(0.0f, 1.0f, 0.0f);
-float panX = 0.0f, tiltY = 0.0f, zoom = 1.0f;		//variables that will be adjusted through cursor callback
+float panX = 0.0f, tiltY = 0.0f, zoom = 0.0f;		//variables that will be adjusted through cursor callback
 float rotAnglex = 0.0f, rotAngley = 0.0f;			//variables to be adjusted through key callback
 
 // Callback functions + funtions------------------------------------------------------------------------------------------------
@@ -42,10 +42,12 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mode)
 vector<glm::vec3> createPoints(vector<glm::vec3> original, int skip);
 vector<glm::vec3> colourPoints(vector<glm::vec3> points);
 
-//variables to control the environment in the render mode--------------------------------------------------------------------------
+//variables to control the environment-------------------------------------------------------------------------------------------
 int tag = 1; //variable that will allow to change what step is being drawn
 bool getInputs = false;
 int skipsize;
+int stepsize;
+int trackHeight = 0; trackWidth = 0;
 
 
 // The MAIN function---------------------------------------------------------------------------------------------------------------
@@ -244,6 +246,10 @@ int main()
 
 	glBindVertexArray(0); // Unbind VAO
 
+	//------------------------------------------Setup Catmull Rom for the x----------------------------------------------------------
+	cout << "\nPlease enter a step-size: ";
+	cin >> stepsize;
+
 	/*
 	int width1 = 0;
 	int height1 = 0;
@@ -302,56 +308,56 @@ int main()
 			getInputs = false;
 		}
 
-		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
-		glfwPollEvents();
+// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
+glfwPollEvents();
 
-		// Render
-		// Clear the colorbuffer
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+// Render
+// Clear the colorbuffer
+glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//set the camera-----------------------------------------------------------------------------------------
-		glm::mat4 view_matrix;
-		glm::mat4 model_matrix;
-		glm::vec3 eye(0.0f + panX, 100.0f + tiltY, 0.0f + zoom);
-		view_matrix = glm::lookAt(eye, center, up);
+//set the camera-----------------------------------------------------------------------------------------
+glm::mat4 view_matrix;
+glm::mat4 model_matrix;
+glm::vec3 eye(0.0f + panX, 700.0f + tiltY, 0.0f + zoom);
+view_matrix = glm::lookAt(eye, center, up);
 
-		/*
-		//adjust camera based on mouse actions
-		view_matrix = glm::translate(view_matrix, glm::vec3(panX, 0.0f, 0.0f));
-		view_matrix = glm::rotate(view_matrix, glm::radians(tiltY), glm::vec3(0.0f, 0.0f, 1.0f));
-		//adjust camera based on key actions
-		view_matrix = glm::rotate(view_matrix, glm::radians(rotAnglex), glm::vec3(1.0f, 0.0f, 0.0f));
-		view_matrix = glm::rotate(view_matrix, glm::radians(rotAngley), glm::vec3(0.0f, 1.0f, 0.0f));
-		*/
+/*
+//adjust camera based on mouse actions
+view_matrix = glm::translate(view_matrix, glm::vec3(panX, 0.0f, 0.0f));
+view_matrix = glm::rotate(view_matrix, glm::radians(tiltY), glm::vec3(0.0f, 0.0f, 1.0f));
+//adjust camera based on key actions
+view_matrix = glm::rotate(view_matrix, glm::radians(rotAnglex), glm::vec3(1.0f, 0.0f, 0.0f));
+view_matrix = glm::rotate(view_matrix, glm::radians(rotAngley), glm::vec3(0.0f, 1.0f, 0.0f));
+*/
 
-		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
-		glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
-		glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
+glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(model_matrix));
+glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, glm::value_ptr(view_matrix));
+glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection_matrix));
 
-		switch (tag)
-		{
-			case 1: 
-			glBindVertexArray(VAO_Image);
-			glDrawArrays(GL_POINTS, 0, imagePoints.size());
-			glBindVertexArray(0);
-			break;
-			case 2:
-				glBindVertexArray(VAO_Skip);
-				glDrawArrays(GL_POINTS, 0, skipPoints.size());
-				glBindVertexArray(0);
-				break;
-		}
-	
-	
-		// Swap the screen buffers
-		glfwSwapBuffers(window);
+switch (tag)
+{
+case 1:
+	glBindVertexArray(VAO_Image);
+	glDrawArrays(GL_POINTS, 0, imagePoints.size());
+	glBindVertexArray(0);
+	break;
+case 2:
+	glBindVertexArray(VAO_Skip);
+	glDrawArrays(GL_POINTS, 0, skipPoints.size());
+	glBindVertexArray(0);
+	break;
+}
+
+
+// Swap the screen buffers
+glfwSwapBuffers(window);
 	}
 
 	// Terminate GLFW, clearing any resources allocated by GLFW.
 	glfwTerminate();
 	return 0;
-	
+
 }
 
 //------------------------------------------Function to generate image points based on a skip----------------------------------------
@@ -390,6 +396,38 @@ vector<glm::vec3> colourPoints(vector<glm::vec3> points)
 	}
 	return pointsColour;
 }
+
+//------------------------------------------Function to generate Catmull Rom points based on a skip----------------------------------------
+//referenced for equation from: http://hawkesy.blogspot.ca/2010/05/catmull-rom-spline-curve-implementation.html
+vector<glm::vec3> CatmullRomX(vector<glm::vec3> points, float step, int height, int width)
+{
+	glm::vec3 point0, point1, point2, point3;
+	vector<glm::vec3> catmullRom;
+	int index = 0;
+
+	for (int j = 0; j <= height - 1; j++)
+	{
+		index = j;
+		for (int i = 0; i < (height * width) - (4 * height); i += height)
+		{
+			point0 = points[index];
+			point1 = points[index + height];
+			point2 = points[index + height + height];
+			point3 = points[index + height + height + height];
+
+			glm::vec3 newpoint = 0.5f * ((2.0f * point1) + (point2 - point0) * step + (2.0f * point0 - 5.0f * point1 + 4.0f * point2 - point3) *
+				step * step + (3.0f * point1 - point0 - 3.0f * point2 + point3) * step * step * step);
+
+			catmullRom.emplace_back(newpoint);
+			index += height;
+		}
+	}
+	
+
+	return catmullRom;
+}
+
+
 //key callback function------------------------------------------------------------------------------------------------------------
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) 
 	{
