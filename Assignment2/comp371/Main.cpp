@@ -313,6 +313,7 @@ int main()
 	glEnable(GL_BLEND | GL_DEPTH_TEST);
 
 
+	int count = 0;
 	// Game loop------------------------------------------------------------------------------------------------------------------
 	while (!glfwWindowShouldClose(window))
 	{
@@ -368,6 +369,29 @@ int main()
 
 			getInputs = false;
 		}
+		/*
+		Fun code to make the world explode through cat
+			stepsize += 0.7;
+
+			vector<glm::vec3> catXPoints = CatmullRomX(imagePoints, stepsize, image.height(), image.width());
+			vector<glm::vec3> CatXColour = colourPoints(catXPoints);
+
+			glBindVertexArray(VAO_CatX);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO_CatX);
+			glBufferData(GL_ARRAY_BUFFER, catXPoints.size() * sizeof(glm::vec3), &catXPoints.front(), GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO_CatXColour);
+			glBufferData(GL_ARRAY_BUFFER, CatXColour.size() * sizeof(glm::vec3), &CatXColour.front(), GL_STATIC_DRAW);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, 1);
+
+			glBindVertexArray(0);
+		*/
 
 		// Check if any events have been activiated (key pressed, mouse moved etc.) and call corresponding response functions
 		glfwPollEvents();
@@ -459,7 +483,7 @@ vector<glm::vec3> createPoints(vector<glm::vec3> original, int skip)
 //------------------------------------------Function to generate image points based on a skip----------------------------------------
 vector<glm::vec3> colourPoints(vector<glm::vec3> points)
 {
-	cout << "Getting colour with vector of size: " << points.size() << endl;
+	//cout << "Getting colour with vector of size: " << points.size() << endl;
 	vector<glm::vec3> pointsColour;
 
 	for (int i = 0; i <= points.size() - 1; i++)
@@ -477,7 +501,7 @@ vector<glm::vec3> colourPoints(vector<glm::vec3> points)
 		else if (220 <= points[i].y && points[i].y < 240) { pointsColour.emplace_back(glm::vec3(0.5, 0.9, 0.0)); }
 		else { pointsColour.emplace_back(glm::vec3(0.0, 1.0, 0.0)); }
 	}
-	cout << "Succeeded" << endl;
+	//cout << "Succeeded" << endl;
 	return pointsColour;
 }
 
@@ -485,7 +509,7 @@ vector<glm::vec3> colourPoints(vector<glm::vec3> points)
 //referenced for equation from: http://hawkesy.blogspot.ca/2010/05/catmull-rom-spline-curve-implementation.html
 vector<glm::vec3> CatmullRomX(vector<glm::vec3> points, float step, int height, int width)
 {
-	cout << "Getting Cat X with vector of size: " << points.size() << " and step of " << step << endl;
+	//cout << "Getting Cat X with vector of size: " << points.size() << " and step of " << step << endl;
 	glm::vec3 point0, point1, point2, point3;
 	vector<glm::vec3> catmullRom;
 	int index = 0;
@@ -507,7 +531,7 @@ vector<glm::vec3> CatmullRomX(vector<glm::vec3> points, float step, int height, 
 			index += height;
 		}
 	}
-	cout << "succeeded" << endl;
+	//cout << "succeeded" << endl;
 	return catmullRom;
 }
 
@@ -615,6 +639,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		rotAnglex = 0.0f; rotAngley = 0.0f;
 		panX = 0.0f; tiltY = 0.0f; zoom = 1.0f;
+		stepsize = 0.5;
 	}
 }
 
