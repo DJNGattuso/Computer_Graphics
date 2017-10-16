@@ -42,9 +42,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mode)
 vector<glm::vec3> createPoints(vector<glm::vec3> original, int skip);
 vector<glm::vec3> colourPoints(vector<glm::vec3> points);
 vector<glm::vec3> CatmullRomX(vector<glm::vec3> points, float step, int height, int width);
+vector<GLuint> getTri(vector<glm::vec3> points, int height, int width);
 
 //variables to control the environment-------------------------------------------------------------------------------------------
 int tag = 1; //variable that will allow to change what step is being drawn
+bool tri = false;
 bool getInputs = false;
 int skipsize;
 float stepsize;
@@ -183,6 +185,7 @@ int main()
 	vector <glm::vec3> imagePoints;
 
 	//--------------------Loop through each pixel in the image----------------
+	cout << "Generating pixels" << endl;
 	for (int x = (0 - image.width() / 2); x < (image.width())/2; x++)
 	{
 		for (int z = (0 - image.height() / 2); z < (image.height()) / 2; z++)
@@ -191,13 +194,16 @@ int main()
 			imagePoints.emplace_back(glm::vec3(x, height, z));
 		}
 	}
+	cout << "Succeeded" << endl;
 
 	vector <glm::vec3> pointsColour = colourPoints(imagePoints);
+	vector <GLuint> oriTri = getTri(imagePoints, image.height(), image.width());
 
-	GLuint VAO_Image, VBO_Image, VBO_Colour;
+	GLuint VAO_Image, VBO_Image, VBO_Colour, EBO_Image;
 	glGenVertexArrays(1, &VAO_Image);
 	glGenBuffers(1, &VBO_Image);
 	glGenBuffers(1, &VBO_Colour);
+	glGenBuffers(1, &EBO_Image);
 
 	// Bind the Vertex Array Object first, then bind and set vertex buffer(s) and attribute pointer(s).
 	glBindVertexArray(VAO_Image);
@@ -212,6 +218,11 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, pointsColour.size() * sizeof(glm::vec3), &pointsColour.front(), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_Image);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, oriTri.size() * sizeof(GLuint), &oriTri.front(), GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 1);
 
@@ -251,12 +262,9 @@ int main()
 	cout << "\nPlease enter a step-size: ";
 	cin >> stepsize;
 
-	cout << "Getting point catx" << endl;
 	vector<glm::vec3> catXPoints = CatmullRomX(imagePoints, stepsize, image.height(), image.width());
-	cout << "Succeeded" << endl;
-	cout << "Getting colourPoint with vector of size: " << catXPoints.size() << endl;
 	vector<glm::vec3> CatXColour = colourPoints(catXPoints);
-	cout << "Succeeded" << endl;
+
 	GLuint VAO_CatX, VBO_CatX, VBO_CatXColour;
 	glGenVertexArrays(1, &VAO_CatX);
 	glGenBuffers(1, &VBO_CatX);
@@ -310,6 +318,7 @@ int main()
 	{
 		if (getInputs)
 		{
+			//--------------------------- get new value for skip -------------------------------------------
 			cout << "\nPlease enter a skip-size: ";
 			cin >> skipsize;
 
@@ -333,6 +342,29 @@ int main()
 			glBindBuffer(GL_ARRAY_BUFFER, 1);
 
 			glBindVertexArray(0); // Unbind VAO
+
+			//--------------------Get new value for step---------------------------------------------
+			cout << "\nPlease enter a step-size: ";
+			cin >> stepsize;
+
+			vector<glm::vec3> catXPoints = CatmullRomX(imagePoints, stepsize, image.height(), image.width());
+			vector<glm::vec3> CatXColour = colourPoints(catXPoints);
+
+			glBindVertexArray(VAO_CatX);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO_CatX);
+			glBufferData(GL_ARRAY_BUFFER, catXPoints.size() * sizeof(glm::vec3), &catXPoints.front(), GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+			glEnableVertexAttribArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO_CatXColour);
+			glBufferData(GL_ARRAY_BUFFER, CatXColour.size() * sizeof(glm::vec3), &CatXColour.front(), GL_STATIC_DRAW);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+			glEnableVertexAttribArray(1);
+			glBindBuffer(GL_ARRAY_BUFFER, 1);
+
+			glBindVertexArray(0);
 
 			getInputs = false;
 		}
@@ -367,9 +399,20 @@ int main()
 		switch (tag)
 		{
 		case 1:
-			glBindVertexArray(VAO_Image);
-			glDrawArrays(GL_POINTS, 0, imagePoints.size());
-			glBindVertexArray(0);
+			if (tri)
+			{
+				glBindVertexArray(VAO_Image);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_Image);
+				glDrawElements(GL_TRIANGLES, oriTri.size(), GL_UNSIGNED_INT, NULL);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+				glBindVertexArray(0);
+			}
+			else 
+			{
+				glBindVertexArray(VAO_Image);
+				glDrawArrays(GL_POINTS, 0, imagePoints.size());
+				glBindVertexArray(0);
+			}
 			break;
 		case 2:
 			glBindVertexArray(VAO_Skip);
@@ -390,6 +433,10 @@ int main()
 
 	// Terminate GLFW, clearing any resources allocated by GLFW.
 	glfwTerminate();
+
+	glDeleteVertexArrays(1, &VAO_Image);
+	glDeleteBuffers(1, &VBO_Image);
+	glDeleteBuffers(1, &EBO_Image);
 	return 0;
 
 }
@@ -397,6 +444,7 @@ int main()
 //------------------------------------------Function to generate image points based on a skip----------------------------------------
 vector<glm::vec3> createPoints(vector<glm::vec3> original, int skip)
 {
+	cout << "Generating new points with skip: " << skip << endl;
 	vector<glm::vec3> newPoints;
 
 	//------------------------Loop through each pixel in the image----------------------------
@@ -411,6 +459,7 @@ vector<glm::vec3> createPoints(vector<glm::vec3> original, int skip)
 //------------------------------------------Function to generate image points based on a skip----------------------------------------
 vector<glm::vec3> colourPoints(vector<glm::vec3> points)
 {
+	cout << "Getting colour with vector of size: " << points.size() << endl;
 	vector<glm::vec3> pointsColour;
 
 	for (int i = 0; i <= points.size() - 1; i++)
@@ -428,13 +477,15 @@ vector<glm::vec3> colourPoints(vector<glm::vec3> points)
 		else if (220 <= points[i].y && points[i].y < 240) { pointsColour.emplace_back(glm::vec3(0.5, 0.9, 0.0)); }
 		else { pointsColour.emplace_back(glm::vec3(0.0, 1.0, 0.0)); }
 	}
+	cout << "Succeeded" << endl;
 	return pointsColour;
 }
 
-//------------------------------------------Function to generate Catmull Rom points based on a skip----------------------------------------
+//------------------------------------------Function to generate Catmull Rom points based on a step----------------------------------------
 //referenced for equation from: http://hawkesy.blogspot.ca/2010/05/catmull-rom-spline-curve-implementation.html
 vector<glm::vec3> CatmullRomX(vector<glm::vec3> points, float step, int height, int width)
 {
+	cout << "Getting Cat X with vector of size: " << points.size() << " and step of " << step << endl;
 	glm::vec3 point0, point1, point2, point3;
 	vector<glm::vec3> catmullRom;
 	int index = 0;
@@ -442,7 +493,6 @@ vector<glm::vec3> CatmullRomX(vector<glm::vec3> points, float step, int height, 
 	for (int j = 0; j <= height - 1; j++) //start at first row, go to next row until last
 	{
 		index = j;
-		cout << "first loop" << endl;
 		for (int i = 0; i < ((height * width) - (5 * height)); i += height) //start at first column, go to next column until 4th to last
 		{
 			point0 = points[index];
@@ -457,9 +507,36 @@ vector<glm::vec3> CatmullRomX(vector<glm::vec3> points, float step, int height, 
 			index += height;
 		}
 	}
+	cout << "succeeded" << endl;
 	return catmullRom;
 }
 
+//------------------------------------------Function to generate Triangle Indeices------------------------------------------------
+vector<GLuint> getTri(vector<glm::vec3> points, int height, int width)
+{
+	cout << "Generating Triangles..." << endl;
+	vector<GLuint> indices;
+	int index = 0;
+
+	for (int j = 0; j <= height - 1; j++) //start at first row, go to next row until last
+	{
+		index = j;
+		for (int i = 0; i < ((height * width) - (5 * height)); i += height) //start at first column, go to next column until 4th to last
+		{
+			indices.emplace_back(index); // this one
+			indices.emplace_back(index + 1); // next one
+			indices.emplace_back(index + height); // next row
+
+			indices.emplace_back(index + height); // next row
+			indices.emplace_back(index + 1); // next one
+			indices.emplace_back(index + height + 1); // across
+		
+			index += height;
+		}
+	}
+	cout << "Success" << endl;
+	return indices;
+}
 
 //key callback function------------------------------------------------------------------------------------------------------------
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) 
@@ -520,13 +597,18 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	{
 		tag = 2;
 	}
-	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) //show the skip points
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) //show the catmull rom X points
 	{
 		tag = 3;
 	}
-	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) //show the skip points
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS) //get new inputs
 	{
 		getInputs = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) //toggle between drawing triangles or points
+	{
+		if (tri) { tri = false; } 
+		else { tri = true; }
 	}
 	//fix orientation-----------------------------------------------------------------------------------
 	if (glfwGetKey(window, GLFW_KEY_HOME) == GLFW_PRESS)
