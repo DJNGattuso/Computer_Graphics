@@ -115,6 +115,7 @@
     <ClCompile Include="sceneLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="CImg.h" />
     <ClInclude Include="sceneLoader.h" />
   </ItemGroup>

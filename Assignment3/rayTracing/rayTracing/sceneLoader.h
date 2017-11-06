@@ -42,6 +42,8 @@ public:
 
 private:
 	bool loaded;
+	char objectNumb;
+	
 
 };
 
