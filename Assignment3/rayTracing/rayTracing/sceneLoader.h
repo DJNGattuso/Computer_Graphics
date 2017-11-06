@@ -55,17 +55,17 @@ public:
 							}
 							else if (maxCount == 3)
 							{
-								camFov = stoi(Line.substr(5, lineLength));
+								camFov = std::stoi(Line.substr(5, lineLength));
 								maxCount--;
 							}
 							else if (maxCount == 2)
 							{
-								camF = stoi(Line.substr(3, lineLength));
+								camF = std::stoi(Line.substr(3, lineLength));
 								maxCount--;
 							}
 							else if (maxCount == 1)
 							{
-								camA = stoi(Line.substr(3, lineLength));
+								camA = std::stod(Line.substr(3, lineLength));
 								maxCount--;
 							}
 						}
