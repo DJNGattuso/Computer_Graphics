@@ -10,10 +10,13 @@ using namespace std;
 
 int main()
 {
-	cout << "main program for ray tracing" << endl;
+	cout << "main program for ray tracing" << endl; 
 	//for testing purpose
 
-	Scene("scene.txt");
+	Scene loadtext("scene.txt");
+
+	if (loadtext.getLoad()) { cout << "read succesfully" << endl; }
+	else { cout << "Read failed" << endl; }
 
 	int n;
 	cin >> n;
