@@ -20,6 +20,8 @@ public:
 	float getFOV();
 	float getFocal();
 	float getAspect();
+	float getWidth();
+	float getHeight();
 
 private:
 	//Camera variables

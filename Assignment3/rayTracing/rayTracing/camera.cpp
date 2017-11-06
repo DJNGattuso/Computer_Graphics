@@ -23,6 +23,8 @@ void Camera::setImage()
 	width = height * aspectRatio;
 }
 
+
+//--------------------------------------Getter functions--------------------------------
 glm::vec3 Camera::getPosition()
 {
 	return position;
@@ -40,4 +42,12 @@ float Camera::getFocal()
 
 float Camera::getAspect() {
 	return aspectRatio;
+}
+
+float Camera::getWidth() {
+	return width;
+}
+
+float Camera::getHeight() {
+	return height;
 }
