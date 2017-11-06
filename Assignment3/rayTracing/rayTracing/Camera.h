@@ -8,19 +8,30 @@
 class Camera
 {
 public:
-	Camera(glm::vec3 pos, int FOV, int F, double A)
-	{
-		position = pos;
-		fov = FOV;
-		f = F;
-		a = A;
-	}
+	//pixel space
+	static int pixelWidth;
+	static int pixelHeight;
+
+	//constructor
+	Camera(glm::vec3 pos, int FOV, int F, double A);
+
+	//getters
+	glm::vec3 getPosition();
+	float getFOV();
+	float getFocal();
+	float getAspect();
 
 private:
+	//Camera variables
 	glm::vec3 position;
-	int fov;
-	int f;
-	double a;
+	float fov;
+	float focal;
+	float aspectRatio;
+
+	//image space
+	void setImage();
+	float width;
+	float height;
 
 };
 #endif
