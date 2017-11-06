@@ -7,6 +7,7 @@
 #include "sceneLoader.h"
 #include "CImg.h"
 #include "Camera.h"
+#include "Sphere.h"
 using namespace std;
 
 int main()
@@ -24,8 +25,9 @@ int main()
 	//-----------------------------------------Create camera object and image space-------------------------------------------------
 	Camera camera(glm::vec3{ 0,0,0 }, 60, 1000, 1.33);
 
-
-
+	//----------------------------------------------Create Sphere Object------------------------------------------------------------
+	Sphere sphere1(glm::vec3{ 0,6,-40 }, 2, glm::vec3{ 0.1,0.5,0.5 }, glm::vec3{ 0.4, 0.6, 0.2 }, glm::vec3{ 0.2, 0.5, 0.5 }, 1);
+	Sphere sphere2(glm::vec3{ 0,3,-40 }, 3, glm::vec3{0.3, 0.15, 0.2}, glm::vec3{ 0.1, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.2 }, 1);
 
 	//-------------------------------------------------Save image----------------------------------------------------------
 	//Creates an image with three channels and sets it to black

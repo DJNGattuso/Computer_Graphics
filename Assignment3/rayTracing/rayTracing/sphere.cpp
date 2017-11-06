@@ -2,27 +2,19 @@
 #include "Sphere.h"
 #include <iostream>
 
-Sphere::Sphere(const glm::vec3 cent, const float radius, glm::vec3 amb, const glm::vec3 dif, const glm::vec3 spe, const float shini)
+Sphere::Sphere( glm::vec3 cent, float radius, glm::vec3 amb, glm::vec3 dif, glm::vec3 spe, float shini)
 	: Objprim(amb, dif, spe, shini) 
 {
 	setCenter(cent);
 	setRadius(radius);
 }
 
-
-glm::vec3 Sphere::getCenter() const { return center; }
-
-float Sphere::getRadius() const { return radius; }
-
-
-void Sphere::setCenter(const glm::vec3 cent) { center = cent; }
-
-
-void Sphere::setRadius(const float rad)
+//------------------------Getters------------------------
+glm::vec3 Sphere::getCenter() { return center; }
+float Sphere::getRadius() { return radius; }
+//------------------------Setters-------------------------
+void Sphere::setCenter(glm::vec3 cent) { center = cent; }
+void Sphere::setRadius(float rad)
 {
-	if (radius <= 0.)
-	{
-		throw std::logic_error("Radius must be positive.");
-	}
 	radius = rad;
 }

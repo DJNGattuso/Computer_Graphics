@@ -8,13 +8,13 @@
 class Sphere : Objprim
 {
 public:
-	Sphere(const glm::vec3 center, const float radius, glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 spe, const float shine);
+	Sphere(glm::vec3 center, float radius, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 spe, float shine);
 
 	//Getters and setters
-	glm::vec3 getCenter() const;
-	float getRadius() const;
-	void setCenter(const glm::vec3 centre);
-	void setRadius(const float radius);
+	glm::vec3 getCenter();
+	float getRadius();
+	void setCenter(glm::vec3 centre);
+	void setRadius(float radius);
 
 private:
 	glm::vec3 center;
