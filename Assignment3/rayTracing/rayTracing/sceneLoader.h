@@ -11,22 +11,37 @@ public:
 	Scene(const char* scenePath)
 	{
 		//Read the scene file
-		string scenePath = "scene.txt";
-		string sceneCode;
-		std::ifstream sceneStream(scenePath, ios::in);
+		std::string sceneCode;
+		std::ifstream sceneStream(scenePath, std::ios::in);
 
 		if (sceneStream.is_open()) {
-			string Line = "";
+			std::string Line = "";
+			int lineCount = 0; int maxCount = 0;
+			//--------------------loop through the entire txt--------------------
 			while (getline(sceneStream, Line))
+			{
 				sceneCode += "\n" + Line;
+				
+				//---------first line of the txt file------------
+				//if (lineCount == 0)
+				//{
+
+				//}
+			}
 			sceneStream.close();
+			loaded = true;
 		}
 		else {
-			printf("Impossible to open %s. Are you in the right directory ?\n", scenePath.c_str());
-			getchar();
+			printf("Impossible to open %s. Are you in the right directory ?\n");
+			loaded = false;
 			exit(-1);
 		}
 	}
+
+	bool getLoad(){ return loaded;}
+
+private:
+	bool loaded;
 
 };
 
