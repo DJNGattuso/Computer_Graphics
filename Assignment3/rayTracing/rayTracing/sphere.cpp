@@ -2,9 +2,9 @@
 #include "Sphere.h"
 #include <iostream>
 
-Sphere::Sphere(const glm::vec3 cent, const float radius, glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 spe, const float shine)
+Sphere::Sphere(const glm::vec3 cent, const float radius, glm::vec3 amb, const glm::vec3 dif, const glm::vec3 spe, const float shini)
+	: Objprim(amb, dif, spe, shini) 
 {
-	//pass variables to primitive
 	setCenter(cent);
 	setRadius(radius);
 }

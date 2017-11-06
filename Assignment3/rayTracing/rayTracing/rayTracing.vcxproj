@@ -113,12 +113,14 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="objprim.cpp" />
     <ClCompile Include="sceneLoader.cpp" />
     <ClCompile Include="sphere.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
     <ClInclude Include="CImg.h" />
+    <ClInclude Include="objectPrim.h" />
     <ClInclude Include="sceneLoader.h" />
     <ClInclude Include="Sphere.h" />
   </ItemGroup>

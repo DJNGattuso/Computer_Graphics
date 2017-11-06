@@ -2,10 +2,10 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-
+#include "objectPrim.h"
 #include </Users/Nicholas/Programming/Computer_Graphics/Assignment3/rayTracing/glm/glm.hpp>
 
-class Sphere
+class Sphere : Objprim
 {
 public:
 	Sphere(const glm::vec3 center, const float radius, glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 spe, const float shine);
