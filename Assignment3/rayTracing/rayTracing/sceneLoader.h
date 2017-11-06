@@ -45,6 +45,7 @@ public:
 					}
 					else //within an objects definition
 					{
+						/*
 						//Camera
 						if (objectType == 1)
 						{
@@ -141,7 +142,7 @@ public:
 								sphSphi = Line[5] - '0';
 								maxCount--;
 							}
-						}
+						}*/
 					}
 				}
 			}

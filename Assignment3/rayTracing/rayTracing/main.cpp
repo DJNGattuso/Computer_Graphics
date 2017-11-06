@@ -8,6 +8,7 @@
 #include "CImg.h"
 #include "Camera.h"
 #include "Sphere.h"
+#include "Raytracing.h"
 using namespace std;
 
 int main()
@@ -32,7 +33,26 @@ int main()
 
 	//NEED TO DO
 	//Go through each pixel in the image -> make a loop throughout the image, for every pixel do the following:
-	//calculate the pixel and its ray direction using camera.rayPixel
+	float imageWidth = camera.getWidth(); float imageHeight = camera.getHeight();
+	
+	glm::vec3 camPos = camera.getPosition();
+	
+	for (int h = 0; h <= imageHeight - 1; h++) //loop through every height column
+	{
+		for (int w = 0; w <= imageWidth - 1; w++) //loop through every width row
+		{
+			//get a ray
+			Raytray ray = camera.rayPixel(w, h);
+
+			//calculate distance to know how far to check
+			glm::vec2 distance{(w - camPos.x), (h - camPos.y)};
+			float dista = sqrt((distance.x)*(distance.x) + (distance.y)*(distance.y));
+
+			//toss ray and check for intersection
+
+		}
+	}
+
 	//toss the ray using raytray.getPoint
 	//check if there's an intersection
 	//set the colour of the pixel
