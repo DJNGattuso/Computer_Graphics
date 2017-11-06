@@ -72,7 +72,75 @@ public:
 						//triangle
 						else if (objectType == 2)
 						{
-						
+							if (maxCount == 7)
+							{
+								v1.x = Line[4] - '0'; v1.y = Line[6] - '0'; v1.z = Line[9] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 6)
+							{
+								v2.x = Line[4] - '0'; v2.y = Line[6] - '0'; v2.z = Line[9] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 5)
+							{
+								v3.x = Line[4] - '0'; v3.y = Line[6] - '0'; v3.z = Line[9] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 4)
+							{
+								amb.x = Line[4] - '0'; amb.y = Line[6] - '0'; amb.z = Line[9] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 3)
+							{
+								dif.x = Line[4] - '0'; dif.y = Line[6] - '0'; dif.z = Line[9] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 2)
+							{
+								spe.x = Line[4] - '0'; spe.y = Line[6] - '0'; spe.z = Line[9] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 1)
+							{
+								sphi = std::stoi(Line.substr(3, lineLength));
+								maxCount--;
+							}
+						}
+						//sphere
+						else if (objectType == 3)
+						{
+							if (maxCount == 6)
+							{
+								sphPos.x = Line[4] - '0'; sphPos.y = Line[6] - '0'; sphPos.z = Line[9] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 5)
+							{
+								radius = Line[5] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 4)
+							{
+								sphAmb.x = Line[4] - '0'; sphAmb.y = Line[6] - '0'; sphAmb.z = Line[9] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 3)
+							{
+								sphDif.x = Line[4] - '0'; sphDif.y = Line[6] - '0'; sphDif.z = Line[9] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 2)
+							{
+								sphSpe.x = Line[4] - '0'; sphSpe.y = Line[6] - '0'; sphSpe.z = Line[9] - '0';
+								maxCount--;
+							}
+							else if (maxCount == 1)
+							{
+								sphSphi = Line[5] - '0';
+								maxCount--;
+							}
 						}
 					}
 				}
@@ -111,7 +179,22 @@ private:
 	int camF;
 	double camA;
 
+	//Triangle variable
+	glm::vec3 v1;
+	glm::vec3 v2;
+	glm::vec3 v3;
+	glm::vec3 amb;
+	glm::vec3 dif;
+	glm::vec3 spe;
+	double sphi;
 
+	//square variable
+	glm::vec3 sphPos;
+	int radius;
+	glm::vec3 sphAmb;
+	glm::vec3 sphDif;
+	glm::vec3 sphSpe;
+	int sphSphi;
 };
 
 
