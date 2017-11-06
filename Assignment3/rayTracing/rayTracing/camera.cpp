@@ -29,25 +29,44 @@ glm::vec3 Camera::getPosition()
 {
 	return position;
 }
-
 float Camera::getFOV()
 {
 	return fov;
 }
-
 float Camera::getFocal()
 {
 	return focal;
 }
-
 float Camera::getAspect() {
 	return aspectRatio;
 }
-
 float Camera::getWidth() {
 	return width;
 }
-
 float Camera::getHeight() {
 	return height;
+}
+
+//---------------Calculate pixel position and toss a ray through the pixel----------------
+//create a ray that passes through a pixel
+Raytray Camera::rayPixel(int i, int j)
+{
+	auto pixel = getPixel(i, j);
+	auto direction = pixel - position;
+	return Raytray(pixel, direction);
+}
+
+//get the pixel's cordinate according to the image
+glm::vec3 Camera::getPixel(int i, int j)
+{
+	auto imageCordinates = glm::vec3(getImagePixel(i, j), focal);
+	return position + imageCordinates;
+}
+
+//get the pixel within the image
+glm::vec2 Camera::getImagePixel(int i, int j)
+{
+	auto x = width * ((float)i / pixelWidth - 0.5f) + 0.5f;
+	auto y = height * ((float)i / pixelHeight - 0.5f) + 0.5f;
+	return glm::vec2(x, y);
 }

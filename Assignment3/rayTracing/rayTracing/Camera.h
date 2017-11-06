@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include </Users/Nicholas/Programming/Computer_Graphics/Assignment3/rayTracing/glm/glm.hpp>
+#include "Raytracing.h"
 
 class Camera
 {
@@ -23,6 +24,10 @@ public:
 	float getWidth();
 	float getHeight();
 
+	//pixel operations for raytracing
+	glm::vec3 getPixel(int i, int j);
+	Raytray rayPixel(int i,  int j);
+
 private:
 	//Camera variables
 	glm::vec3 position;
@@ -34,6 +39,6 @@ private:
 	void setImage();
 	float width;
 	float height;
-
+	glm::vec2 getImagePixel(const int i, const int j);
 };
 #endif
