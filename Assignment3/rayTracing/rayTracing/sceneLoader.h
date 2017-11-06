@@ -55,43 +55,24 @@ public:
 							}
 							else if (maxCount == 3)
 							{
-								camFov = Line[5,6] - '0';
+								camFov = stoi(Line.substr(5, lineLength));
 								maxCount--;
 							}
 							else if (maxCount == 2)
 							{
-								camF = Line[3:lineLength] - '0';
+								camF = stoi(Line.substr(3, lineLength));
 								maxCount--;
 							}
 							else if (maxCount == 1)
 							{
-								camA = Line[3:lineLength] - '0';
+								camA = stoi(Line.substr(3, lineLength));
 								maxCount--;
 							}
 						}
 						//triangle
 						else if (objectType == 2)
 						{
-							if (maxCount == 4)
-							{
-								camPos.x = Line[5] - '0'; camPos.y = Line[6] - '0'; camPos.z = Line[7] - '0';
-								maxCount--;
-							}
-							else if (maxCount == 3)
-							{
-								camFov = Line[5, 6] - '0';
-								maxCount--;
-							}
-							else if (maxCount == 2)
-							{
-								camF = Line[3:lineLength] - '0';
-								maxCount--;
-							}
-							else if (maxCount == 1)
-							{
-								camA = Line[3:lineLength] - '0';
-								maxCount--;
-							}
+						
 						}
 					}
 				}
@@ -107,6 +88,14 @@ public:
 	}
 
 	bool getLoad(){ return loaded;}
+
+	void getCamera()
+	{
+		std::cout << "camera position is: " << camPos.x << " " << camPos.y << " " << camPos.z << std::endl;
+		std::cout << "camera fov is: " << camFov << std::endl;
+		std::cout << "camera f is: " << camF << std::endl;
+		std::cout << "camera a is: " << camA << std::endl;
+	}
 
 private:
 	//Check if the file is loaded

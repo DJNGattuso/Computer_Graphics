@@ -18,6 +18,8 @@ int main()
 	if (loadtext.getLoad()) { cout << "read succesfully" << endl; }
 	else { cout << "Read failed" << endl; }
 
+	loadtext.getCamera();
+
 	int n;
 	cin >> n;
 
