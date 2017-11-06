@@ -29,6 +29,14 @@ int main()
 	Sphere sphere1(glm::vec3{ 0,6,-40 }, 2, glm::vec3{ 0.1,0.5,0.5 }, glm::vec3{ 0.4, 0.6, 0.2 }, glm::vec3{ 0.2, 0.5, 0.5 }, 1);
 	Sphere sphere2(glm::vec3{ 0,3,-40 }, 3, glm::vec3{0.3, 0.15, 0.2}, glm::vec3{ 0.1, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.2 }, 1);
 
+
+	//NEED TO DO
+	//Go through each pixel in the image -> make a loop throughout the image, for every pixel do the following:
+	//calculate the pixel and its ray direction using camera.rayPixel
+	//toss the ray using raytray.getPoint
+	//check if there's an intersection
+	//set the colour of the pixel
+
 	//-------------------------------------------------Save image----------------------------------------------------------
 	//Creates an image with three channels and sets it to black
 	cimg_library::CImg<float> image(camera.getWidth(), camera.getHeight(), 1, 3, 0);

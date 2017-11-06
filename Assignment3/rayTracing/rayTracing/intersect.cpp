@@ -9,7 +9,7 @@ Intersect::Intersect(Raytray& ray, Objprim& primitive)
 {
 	bool hits;
 	float distance;
-	std::tie(hits, distance) = primitive.intersection(ray); //pair objects together and find the intersection
+	//std::tie(hits, distance) = primitive.intersection(ray); //pair objects together and find the intersection
 	hitsObject = hits;
 	distanceFromHit = distance;
 }

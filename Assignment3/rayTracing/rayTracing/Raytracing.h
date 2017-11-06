@@ -15,7 +15,7 @@ public:
 	//--------Getters-------
 	glm::vec3 getOri();
 	glm::vec3 getDi();
-	glm::vec3 getPoint(float t);
+	glm::vec3 getPoint(float distance);
 	//--------Setters-------
 	void setOri(glm::vec3 origin);
 	void setDi(glm::vec3 direction);

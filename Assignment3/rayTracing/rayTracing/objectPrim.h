@@ -17,7 +17,7 @@ public:
 	Objprim(const glm::vec3 ambientColour, const glm::vec3 diffuseColour, const glm::vec3 specularColour, const float shininess);
 	Objprim();
 	//---------set an intersection----------
-	virtual std::pair<bool, float> intersection(Raytray ray) = 0;
+	//virtual std::pair<bool, float> intersection(Raytray ray) = 0;
 	//----------Getters--------
 	glm::vec3 getAmbient() const;
 	glm::vec3 getDiffuse() const;

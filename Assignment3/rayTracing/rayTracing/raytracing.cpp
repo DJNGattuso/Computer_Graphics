@@ -11,9 +11,9 @@ Raytray::Raytray(const glm::vec3 origin, glm::vec3 direction)
 //---------------------------------Getters-------------------------------
 glm::vec3 Raytray::getOri(){ return origin; }
 glm::vec3 Raytray::getDi(){ return direction; }
-glm::vec3 Raytray::getPoint(float t)
+glm::vec3 Raytray::getPoint(float distance)
 {
-	return origin + direction * t;
+	return origin + direction * distance;
 }
 
 //--------------------------------Setters------------------------------
