@@ -62,8 +62,17 @@ int main()
 	cimg_library::CImg<float> image(camera.getWidth(), camera.getHeight(), 1, 3, 0);
 	
 	//need to compute the colours
+	for (int h = 0; h <= imageHeight - 1; h++) //loop through every height column
+	{
+		for (int w = 0; w <= imageWidth - 1; w++) //loop through every width row
+		{
+			float color[3]{ 0.3*w, 0.6*w, 0.7*w };
+			image.draw_point(w, h, color);
+		}
+	}
 
 	//Save out the image in BMP format. Pixel values must be in the range [0,255]
+	image.normalize(0, 255);
 	image.save("render.bmp");
 
 	//Display the rendered image on screen
