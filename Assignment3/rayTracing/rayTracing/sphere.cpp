@@ -24,7 +24,7 @@ void Sphere::setRadius(float rad)
 bool Sphere::sphereInter(glm::vec3 rayPoint, glm::vec3 direction)
 {
 	float t0, t1;
-	glm::vec3 distOrigPos = rayPoint - center;
+	glm::vec3 distOrigPos = center - rayPoint;
 	float tca = glm::dot(distOrigPos, direction);
 
 	// if (tca < 0) return false;

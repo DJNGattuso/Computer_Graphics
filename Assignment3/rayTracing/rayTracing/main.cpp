@@ -56,14 +56,15 @@ int main()
 			//glm::vec2 distance{(w - camPos.x), (h - camPos.y)};
 			//float dista = sqrt((distance.x)*(distance.x) + (distance.y)*(distance.y));
 
+			glm::vec3 colour{ 0.0, 0.0, 0.0 };
 			//toss ray and check for intersection
-			if (sphere1.sphereInter(ray.getOri, ray.getDi))
+			if (sphere1.sphereInter(ray.getOri(), ray.getDi()))
 			{
-				glm::vec3 colour = sphere1.getAmbient();
+				colour = sphere1.getAmbient();
 			}
 
 			//Store the colour of the pixel
-			float color[3]{ 0.3*w, 0.6*w, 0.7*w };
+			float color[3]{ colour.x, colour.y, colour.z };
 			image.draw_point(w, h, color);
 		}
 	}
