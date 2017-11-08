@@ -30,6 +30,14 @@ int main()
 	Sphere sphere1(glm::vec3{ 0,6,-40 }, 2, glm::vec3{ 0.1,0.5,0.5 }, glm::vec3{ 0.4, 0.6, 0.2 }, glm::vec3{ 0.2, 0.5, 0.5 }, 1);
 	Sphere sphere2(glm::vec3{ 0,3,-40 }, 3, glm::vec3{0.3, 0.15, 0.2}, glm::vec3{ 0.1, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.2 }, 1);
 
+	//NEED TO DO
+	//Add the other objects (triangles, objs, plane, light)
+	//Fix the scene to get the objects from the scene instead
+
+	//--------------------------------------------------Define the Image-------------------------------------------------------
+	//Creates an image with three channels and sets it to black
+	cimg_library::CImg<float> image(camera.getWidth(), camera.getHeight(), 1, 3, 0);
+
 
 	//NEED TO DO
 	//Go through each pixel in the image -> make a loop throughout the image, for every pixel do the following:
@@ -42,7 +50,8 @@ int main()
 		for (int w = 0; w <= imageWidth - 1; w++) //loop through every width row
 		{
 			//get a ray
-			Raytray ray = camera.rayPixel(w, h);
+			Raytray ray = camera.rayPixel(w, h); //ray receives the point (w,h) and the direction
+			//Raytray viewRay = { { float(w), float(h), -1000.0f },{ 0.0f, 0.0f, 1.0f } };
 
 			//calculate distance to know how far to check
 			glm::vec2 distance{(w - camPos.x), (h - camPos.y)};
@@ -50,6 +59,10 @@ int main()
 
 			//toss ray and check for intersection
 
+
+			//Store the colour of the pixel
+			float color[3]{ 0.3*w, 0.6*w, 0.7*w };
+			image.draw_point(w, h, color);
 		}
 	}
 
@@ -57,20 +70,7 @@ int main()
 	//check if there's an intersection
 	//set the colour of the pixel
 
-	//-------------------------------------------------Save image----------------------------------------------------------
-	//Creates an image with three channels and sets it to black
-	cimg_library::CImg<float> image(camera.getWidth(), camera.getHeight(), 1, 3, 0);
-	
-	//need to compute the colours
-	for (int h = 0; h <= imageHeight - 1; h++) //loop through every height column
-	{
-		for (int w = 0; w <= imageWidth - 1; w++) //loop through every width row
-		{
-			float color[3]{ 0.3*w, 0.6*w, 0.7*w };
-			image.draw_point(w, h, color);
-		}
-	}
-
+	//-------------------------------------------------Save image---------------------------------------------------------
 	//Save out the image in BMP format. Pixel values must be in the range [0,255]
 	image.normalize(0, 255);
 	image.save("render.bmp");
