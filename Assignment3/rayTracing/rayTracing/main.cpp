@@ -51,14 +51,16 @@ int main()
 		{
 			//get a ray
 			Raytray ray = camera.rayPixel(w, h); //ray receives the point (w,h) and the direction
-			//Raytray viewRay = { { float(w), float(h), -1000.0f },{ 0.0f, 0.0f, 1.0f } };
 
 			//calculate distance to know how far to check
-			glm::vec2 distance{(w - camPos.x), (h - camPos.y)};
-			float dista = sqrt((distance.x)*(distance.x) + (distance.y)*(distance.y));
+			//glm::vec2 distance{(w - camPos.x), (h - camPos.y)};
+			//float dista = sqrt((distance.x)*(distance.x) + (distance.y)*(distance.y));
 
 			//toss ray and check for intersection
-
+			if (sphere1.sphereInter(ray.getOri, ray.getDi))
+			{
+				glm::vec3 colour = sphere1.getAmbient();
+			}
 
 			//Store the colour of the pixel
 			float color[3]{ 0.3*w, 0.6*w, 0.7*w };
