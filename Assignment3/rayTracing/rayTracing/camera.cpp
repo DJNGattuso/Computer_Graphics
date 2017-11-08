@@ -51,9 +51,11 @@ float Camera::getHeight() {
 //create a ray that passes through a pixel
 Raytray Camera::rayPixel(int i, int j)
 {
-	auto pixel = getPixel(i, j);
-	auto direction = pixel - position;
-	return Raytray(pixel, direction);
+	//auto pixel = getPixel(i, j);
+	glm::vec3 pixel{ i,j, 0 };
+	glm::vec3 direction = pixel - position;
+	glm::vec3 normDirection = glm::normalize(direction);
+	return Raytray(pixel, normDirection);
 }
 
 //get the pixel's cordinate according to the image

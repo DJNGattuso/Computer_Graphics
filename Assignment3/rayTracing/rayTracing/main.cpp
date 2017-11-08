@@ -56,7 +56,7 @@ int main()
 			//glm::vec2 distance{(w - camPos.x), (h - camPos.y)};
 			//float dista = sqrt((distance.x)*(distance.x) + (distance.y)*(distance.y));
 
-			glm::vec3 colour{ 0.0, 0.0, 0.0 };
+			glm::vec3 colour{ 1.0, 1.0, 1.0 };
 			//toss ray and check for intersection
 			if (sphere1.sphereInter(ray.getOri(), ray.getDi()))
 			{
