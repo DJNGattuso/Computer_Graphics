@@ -71,35 +71,22 @@ int main()
 			//float dista = sqrt((distance.x)*(distance.x) + (distance.y)*(distance.y));
 
 			glm::vec3 colour{ 1.0, 1.0, 1.0 };
-			//toss ray and check for intersection
-			bool sphere1Inter = sphere1.sphereInter(camera.getPosition(), rayDirection);
-			bool sphere2Inter = sphere2.sphereInter(camera.getPosition(), rayDirection);
-			bool sphere3Inter = sphere3.sphereInter(camera.getPosition(), rayDirection);
-			
-			//TO DO optimize check
-			if (sphere1Inter && sphere2Inter && sphere3Inter)
+			//-------toss ray and check for intersection-----
+
+			//for spheres
+			float nearestSphere = 1000000; int nearestSphereIndex;
+			for (int i = 0; i <= sphereObjects.size() - 1; i++)
 			{
-				if (sphere1.getInterDis() <= sphere2.getInterDis() && sphere1.getInterDis() <= sphere3.getInterDis())
+				if (sphereObjects[i].sphereInter(camera.getPosition(), rayDirection)) //if in intersects
 				{
-					colour = sphere1.getAmbient();
+					if (sphereObjects[i].getInterDis() <= nearestSphere)
+					{
+						nearestSphere = sphereObjects[i].getInterDis();
+						nearestSphereIndex = i;
+						colour = sphereObjects[i].getAmbient();
+					}
 				}
-				else if (sphere2.getInterDis() <= sphere1.getInterDis() && sphere2.getInterDis() <= sphere3.getInterDis())
-				{ colour = sphere2.getAmbient(); }
-				else { colour = sphere3.getAmbient(); }
 			}
-			if (sphere1Inter && sphere2Inter && sphere3Inter)
-			{
-				if (sphere1.getInterDis() <= sphere2.getInterDis() && sphere1.getInterDis() <= sphere3.getInterDis())
-				{
-					colour = sphere1.getAmbient();
-				}
-				else if (sphere2.getInterDis() <= sphere1.getInterDis() && sphere2.getInterDis() <= sphere3.getInterDis())
-				{ colour = sphere2.getAmbient(); }
-				else { colour = sphere3.getAmbient(); }
-			}
-			else if (sphere1Inter) { colour = sphere1.getAmbient(); }
-			else if (sphere2Inter) { colour = sphere2.getAmbient(); }
-			else if (sphere3Inter) { colour = sphere3.getAmbient(); }
 
 			//Store the colour of the pixel
 			float color[3]{ colour.x, colour.y, colour.z };
