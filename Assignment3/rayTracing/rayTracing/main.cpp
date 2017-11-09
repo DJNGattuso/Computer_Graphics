@@ -13,6 +13,7 @@
 #include "Raytracing.h"
 #include "Triangles.h"
 #include "Plane.h"
+#include "Light.h"
 
 using namespace std;
 
@@ -58,6 +59,8 @@ int main()
 		glm::vec3{ 0.7,0.7,0.7 }, 6);
 	bool planeInter = false;
 
+	//----------------------------------------------Creating the Light Object---------------------------------------------
+	Light light(glm::vec3{ 15, 12, -3 }, glm::vec3{ 0.3, 0.9, 0.9 });
 
 	//NEED TO DO
 	//Add the other objects (triangles, objs, plane, light)
