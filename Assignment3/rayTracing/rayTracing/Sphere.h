@@ -14,6 +14,7 @@ public:
 	glm::vec3 getCenter();
 	float getRadius();
 	glm::vec3 getAmbient();
+	float getInterDis();
 	void setCenter(glm::vec3 centre);
 	void setRadius(float radius);
 
@@ -23,7 +24,7 @@ public:
 private:
 	glm::vec3 center;
 	float radius;
-	float intersectPoint;
+	float intersectDis;
 };
 
 #endif

@@ -2,6 +2,7 @@
 //referenced to and modified from-https://github.com/wishedeom/COMP371_A3/tree/master/COMP371_A3
 
 #include <iostream>
+#include <vector>
 #include <string>
 #include <fstream>
 #include "sceneLoader.h"
@@ -14,7 +15,7 @@ using namespace std;
 
 int main()
 {
-	cout << "main program for ray tracing" << endl; 
+	cout << "main program for ray tracing" << endl;
 	//for testing purpose
 
 	//------------------------------------Read text file and get the object variables----------------------------------------------
@@ -29,8 +30,14 @@ int main()
 
 	//----------------------------------------------Create Sphere Object------------------------------------------------------------
 	Sphere sphere1(glm::vec3{ 0,6,-40 }, 2, glm::vec3{ 0.1,0.5,0.5 }, glm::vec3{ 0.4, 0.6, 0.2 }, glm::vec3{ 0.2, 0.5, 0.5 }, 1);
-	Sphere sphere2(glm::vec3{ 0,3,-40 }, 3, glm::vec3{0.3, 0.15, 0.2}, glm::vec3{ 0.1, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.2 }, 1);
-
+	Sphere sphere2(glm::vec3{ 0,3,-40 }, 3, glm::vec3{ 0.3, 0.15, 0.2 }, glm::vec3{ 0.1, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.2 }, 1);
+	Sphere sphere3(glm::vec3{ 0, -3, -40 }, 5, glm::vec3{ 0.1, 0.15, 0.7 }, glm::vec3{ 0.8, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.8 }, 1);
+	
+	std::vector<Sphere> sphereObjects;
+	sphereObjects.emplace_back(sphere1);
+	sphereObjects.emplace_back(sphere2);
+	sphereObjects.emplace_back(sphere3);
+	
 	//NEED TO DO
 	//Add the other objects (triangles, objs, plane, light)
 	//Fix the scene to get the objects from the scene instead
@@ -67,10 +74,32 @@ int main()
 			//toss ray and check for intersection
 			bool sphere1Inter = sphere1.sphereInter(camera.getPosition(), rayDirection);
 			bool sphere2Inter = sphere2.sphereInter(camera.getPosition(), rayDirection);
-			if (s && sphere1.sphereInter(camera.getPosition(), rayDirection)
+			bool sphere3Inter = sphere3.sphereInter(camera.getPosition(), rayDirection);
+			
+			//TO DO optimize check
+			if (sphere1Inter && sphere2Inter && sphere3Inter)
 			{
-				colour = sphere1.getAmbient();
+				if (sphere1.getInterDis() <= sphere2.getInterDis() && sphere1.getInterDis() <= sphere3.getInterDis())
+				{
+					colour = sphere1.getAmbient();
+				}
+				else if (sphere2.getInterDis() <= sphere1.getInterDis() && sphere2.getInterDis() <= sphere3.getInterDis())
+				{ colour = sphere2.getAmbient(); }
+				else { colour = sphere3.getAmbient(); }
 			}
+			if (sphere1Inter && sphere2Inter && sphere3Inter)
+			{
+				if (sphere1.getInterDis() <= sphere2.getInterDis() && sphere1.getInterDis() <= sphere3.getInterDis())
+				{
+					colour = sphere1.getAmbient();
+				}
+				else if (sphere2.getInterDis() <= sphere1.getInterDis() && sphere2.getInterDis() <= sphere3.getInterDis())
+				{ colour = sphere2.getAmbient(); }
+				else { colour = sphere3.getAmbient(); }
+			}
+			else if (sphere1Inter) { colour = sphere1.getAmbient(); }
+			else if (sphere2Inter) { colour = sphere2.getAmbient(); }
+			else if (sphere3Inter) { colour = sphere3.getAmbient(); }
 
 			//Store the colour of the pixel
 			float color[3]{ colour.x, colour.y, colour.z };

@@ -2,21 +2,21 @@
 #include "Sphere.h"
 #include <iostream>
 
-Sphere::Sphere( glm::vec3 cent, float radius, glm::vec3 amb, glm::vec3 dif, glm::vec3 spe, float shini)
+Sphere::Sphere( glm::vec3 cent, float rad, glm::vec3 amb, glm::vec3 dif, glm::vec3 spe, float shini)
 	: Objprim(amb, dif, spe, shini) 
 {
-	setCenter(cent);
-	setRadius(radius);
+	center = cent;
+	radius = rad;
 }
 
 //------------------------Getters------------------------
 glm::vec3 Sphere::getCenter() { return center; }
 float Sphere::getRadius() { return radius; }
 glm::vec3 Sphere::getAmbient() { return Objprim::getAmbient(); }
+float Sphere::getInterDis() { return intersectDis; }
 //------------------------Setters-------------------------
 void Sphere::setCenter(glm::vec3 cent) { center = cent; }
-void Sphere::setRadius(float rad)
-{
+void Sphere::setRadius(float rad){
 	radius = rad;
 }
 
@@ -41,7 +41,7 @@ bool Sphere::sphereInter(glm::vec3 rayPoint, glm::vec3 direction)
 		if (t0 < 0) { return false; } // both t0 and t1 are negative 
 	}
 
-	intersectPoint = t0;
+	intersectDis = t0;
 
 	return true;
 }
