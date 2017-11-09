@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #ifndef TRIANGLES_H
 #define TRIANGLES_H
 

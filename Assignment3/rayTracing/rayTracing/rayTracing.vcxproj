@@ -115,6 +115,7 @@
     <ClCompile Include="intersect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="objprim.cpp" />
+    <ClCompile Include="plane.cpp" />
     <ClCompile Include="raytracing.cpp" />
     <ClCompile Include="sceneLoader.cpp" />
     <ClCompile Include="sphere.cpp" />
@@ -125,6 +126,7 @@
     <ClInclude Include="CImg.h" />
     <ClInclude Include="Intersect.h" />
     <ClInclude Include="objectPrim.h" />
+    <ClInclude Include="Plane.h" />
     <ClInclude Include="Raytracing.h" />
     <ClInclude Include="sceneLoader.h" />
     <ClInclude Include="Sphere.h" />

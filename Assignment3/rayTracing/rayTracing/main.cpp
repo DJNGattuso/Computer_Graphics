@@ -122,7 +122,7 @@ int main()
 
 			if (triIntersect && sphereIntersect)
 			{
-				if (nearestSphere <= nearestTri){ colour = sphereObjects[nearestSphereIndex].getAmbient(); }
+				if (nearestTri <= nearestSphere){ colour = sphereObjects[nearestSphereIndex].getAmbient(); }
 				else { colour = triangleObjects[nearestTriIndex].getAmbient(); }
 			}
 			else if (triIntersect){ colour = triangleObjects[nearestTriIndex].getAmbient(); }
