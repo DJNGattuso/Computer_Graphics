@@ -41,12 +41,16 @@ int main()
 	sphereObjects.emplace_back(sphere2);
 	sphereObjects.emplace_back(sphere3);
 
+	bool sphereIntersect = false;
+
 	//----------------------------------------------Create Triangle Object------------------------------------------------------------
 	Triangle triangle1(glm::vec3{ 1,7,-40 }, glm::vec3{ 1,5,-40 }, glm::vec3{ 5,6,-40 }, glm::vec3{ 0.5,0.2,0.7 }, glm::vec3{ 0.2, 0.4, 0.2 }, glm::vec3{ 0.1, 0.1, 0.2 }, 0.5);
 	
 	//place sphere objects in a vector
 	std::vector<Triangle> triangleObjects;
 	triangleObjects.emplace_back(triangle1);
+
+	bool triIntersect = false;
 
 	//NEED TO DO
 	//Add the other objects (triangles, objs, plane, light)
@@ -67,6 +71,9 @@ int main()
 	{
 		for (int w = 0; w <= imageWidth - 1; w++) //loop through every width row
 		{
+			sphereIntersect = false;
+			triIntersect = false;
+
 			//get Camera space
 			float pX = (2 * ((w + 0.5) / imageWidth) - 1) * tan((camera.getFOV()) / 2 * 3.14159 / 180) * aspectRatio;
 			float pY = (1 - 2 * ((h + 0.5) / imageHeight)) * tan((camera.getFOV()) / 2 * 3.14159 / 180);
@@ -87,16 +94,39 @@ int main()
 			float nearestSphere = 1000000; int nearestSphereIndex;
 			for (int i = 0; i <= sphereObjects.size() - 1; i++)
 			{
-				if (sphereObjects[i].sphereInter(camera.getPosition(), rayDirection)) //if in intersects
+				if (sphereObjects[i].sphereInter(camera.getPosition(), rayDirection)) //if it intersects
 				{
+					sphereIntersect = true;
 					if (sphereObjects[i].getInterDis() <= nearestSphere)
 					{
 						nearestSphere = sphereObjects[i].getInterDis();
 						nearestSphereIndex = i;
-						colour = sphereObjects[i].getAmbient();
 					}
 				}
 			}
+
+			float nearestTri = 1000000; int nearestTriIndex;
+			for (int i = 0; i <= triangleObjects.size() - 1; i++)
+			{
+				if (triangleObjects[i].triInter(camera.getPosition(), rayDirection, triangleObjects[i].getVertex1(), 
+					triangleObjects[i].getVertex2(), triangleObjects[i].getVertex3())) //if it intersects
+				{
+					triIntersect = true;
+					if (triangleObjects[i].getInterDis() <= nearestTri)
+					{
+						nearestTri = triangleObjects[i].getInterDis();
+						nearestTriIndex = i;
+					}
+				}
+			}
+
+			if (triIntersect && sphereIntersect)
+			{
+				if (nearestSphere <= nearestTri){ colour = sphereObjects[nearestSphereIndex].getAmbient(); }
+				else { colour = triangleObjects[nearestTriIndex].getAmbient(); }
+			}
+			else if (triIntersect){ colour = triangleObjects[nearestTriIndex].getAmbient(); }
+			else if (sphereIntersect) { colour = sphereObjects[nearestSphereIndex].getAmbient(); }
 
 			//Store the colour of the pixel
 			float color[3]{ colour.x, colour.y, colour.z };

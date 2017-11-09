@@ -20,7 +20,7 @@ public:
 
 
 	//Intersection Function
-	bool triInter(glm::vec3 rayPoint, glm::vec3 direction);
+	bool triInter(glm::vec3 orig, glm::vec3 dir, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3);
 
 private:
 	glm::vec3 vertex1;
