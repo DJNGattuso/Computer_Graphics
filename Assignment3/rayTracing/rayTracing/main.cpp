@@ -5,14 +5,14 @@
 
 #include <iostream>
 #include <vector>
-#include <string>
-#include <fstream>
-#include "sceneLoader.h"
+#include <math.h>
 #include "CImg.h"
+#include "sceneLoader.h"
 #include "Camera.h"
 #include "Sphere.h"
 #include "Raytracing.h"
-#include <math.h>
+#include "Triangles.h"
+
 using namespace std;
 
 int main()
@@ -40,7 +40,14 @@ int main()
 	sphereObjects.emplace_back(sphere1);
 	sphereObjects.emplace_back(sphere2);
 	sphereObjects.emplace_back(sphere3);
+
+	//----------------------------------------------Create Triangle Object------------------------------------------------------------
+	Triangle triangle1(glm::vec3{ 1,7,-40 }, glm::vec3{ 1,5,-40 }, glm::vec3{ 5,6,-40 }, glm::vec3{ 0.5,0.2,0.7 }, glm::vec3{ 0.2, 0.4, 0.2 }, glm::vec3{ 0.1, 0.1, 0.2 }, 0.5);
 	
+	//place sphere objects in a vector
+	std::vector<Triangle> triangleObjects;
+	triangleObjects.emplace_back(triangle1);
+
 	//NEED TO DO
 	//Add the other objects (triangles, objs, plane, light)
 	//Fix the scene to get the objects from the scene instead
