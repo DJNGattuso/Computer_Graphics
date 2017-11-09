@@ -1,28 +1,37 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <iostream>
-#include <string>
-#include <fstream>
+#include <vector>
 #include </Users/Nicholas/Programming/Computer_Graphics/Assignment3/rayTracing/glm/glm.hpp>
+/*#include "Camera.h"
+#include "Sphere.h"
+#include "Raytracing.h"
+#include "Triangles.h"
+#include "Plane.h"
+#include "Light.h"*/
 
 class Scene
 {
 public:
-	Scene(const char* scenePath)
-{}
+	Scene(const char* scenePath);
 
-	bool getLoad(){ return loaded;}
-
-	void getCamera()
-	{
-		std::cout << "camera position is: " << camPos.x << " " << camPos.y << " " << camPos.z << std::endl;
-		std::cout << "camera fov is: " << camFov << std::endl;
-		std::cout << "camera f is: " << camF << std::endl;
-		std::cout << "camera a is: " << camA << std::endl;
-	}
+	//--------getters-------
+	bool getLoad();
+	void getCamera();
+	int getTotalObjects();
+	//std::vector <void> getObjects();
 
 private:
+	void createScene();
+	//std::vector<void> objects;
+	/*
+	Camera camera;
+	std::vector <Light> lights;
+	std::vector <Sphere> sphere;
+	std::vector <Triangle> triangle;
+	std::vector <Plane> planes;
+	*/
+
 	//Check if the file is loaded
 	bool loaded;
 

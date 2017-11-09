@@ -1,7 +1,7 @@
 //Nicholas Gattuso 40007087
 //referenced to-https://github.com/wishedeom/COMP371_A3/tree/master/COMP371_A3
 //and from-https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
-
+//and from-https://www.ics.uci.edu/~gopi/CS211B/RayTracing%20tutorial.pdf
 
 #include <iostream>
 #include <vector>
@@ -62,6 +62,7 @@ int main()
 	//----------------------------------------------Creating the Light Object---------------------------------------------
 	Light light(glm::vec3{ 15, 12, -3 }, glm::vec3{ 0.3, 0.9, 0.9 });
 
+
 	//NEED TO DO
 	//Add the other objects (triangles, objs, plane, light)
 	//Fix the scene to get the objects from the scene instead
@@ -77,6 +78,7 @@ int main()
 	float aspectRatio = imageWidth / imageHeight;
 	glm::vec3 camPos = camera.getPosition();
 	
+	//bool sphereIntersect = false; bool triIntersect = false; bool planeInter = false;
 	for (int h = 0; h <= imageHeight - 1; h++) //loop through every height column
 	{
 		for (int w = 0; w <= imageWidth - 1; w++) //loop through every width row

@@ -4,9 +4,9 @@
 #include <fstream>
 #include </Users/Nicholas/Programming/Computer_Graphics/Assignment3/rayTracing/glm/glm.hpp>
 
-/*
-Scene::Scene(const char* scenePath)
-{
+
+
+Scene::Scene(const char* scenePath){
 	//Read the scene file
 	std::string sceneCode;
 	std::ifstream sceneStream(scenePath, std::ios::in);
@@ -26,7 +26,7 @@ Scene::Scene(const char* scenePath)
 				objectNumb = Line[0] - '0';
 				objectsCheck = 0;
 				lineCount++;
-			}
+			}/*
 			else //all other lines
 			{
 				if (maxCount == 0) //next object
@@ -135,21 +135,23 @@ Scene::Scene(const char* scenePath)
 					}
 					else if (maxCount == 1)
 					{
-					sphSphi = Line[5] - '0';
-					maxCount--;
+						sphSphi = Line[5] - '0';
+						maxCount--;
 					}
-					}
-				}
-			}
+				}*/
 		}
+	}
+		
 		sceneStream.close();
 		loaded = true;
-	}
-	else {
-		printf("Impossible to open %s. Are you in the right directory ?\n");
-		loaded = false;
-		exit(-1);
-	}
+
+		//createScene();
+		
+	//else {
+	//	printf("Impossible to open %s. Are you in the right directory ?\n");
+	//	loaded = false;
+	//	exit(-1);
+	//}
 }
 
 bool Scene::getLoad() { return loaded; }
@@ -160,4 +162,49 @@ void Scene::getCamera()
 	std::cout << "camera fov is: " << camFov << std::endl;
 	std::cout << "camera f is: " << camF << std::endl;
 	std::cout << "camera a is: " << camA << std::endl;
-}*/
+}
+//std::vector <void> Scene::getObjects() { return objects; }
+int Scene::getTotalObjects() { return objectNumb; }
+
+void Scene::createScene()
+{
+	/*
+	//-----------------------------------------Create camera object and image space-------------------------------------------------
+	Camera camera(glm::vec3{ 0,0,0 }, 60, 1000, 1.33);
+
+	//----------------------------------------------Create Sphere Object------------------------------------------------------------
+	Sphere sphere1(glm::vec3{ 0,6,-40 }, 2, glm::vec3{ 0.1,0.5,0.5 }, glm::vec3{ 0.4, 0.6, 0.2 }, glm::vec3{ 0.2, 0.5, 0.5 }, 1);
+	Sphere sphere2(glm::vec3{ 0,3,-40 }, 3, glm::vec3{ 0.3, 0.15, 0.2 }, glm::vec3{ 0.1, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.2 }, 1);
+	Sphere sphere3(glm::vec3{ 0, -3, -40 }, 5, glm::vec3{ 0.1, 0.15, 0.7 }, glm::vec3{ 0.8, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.8 }, 1);
+
+	//place sphere objects in the vector
+	sphere.emplace_back(sphere1);
+	sphere.emplace_back(sphere2);
+	sphere.emplace_back(sphere3);
+
+
+	//----------------------------------------------Create Triangle Object------------------------------------------------------------
+	Triangle triangle1(glm::vec3{ 1,7,-40 }, glm::vec3{ 1,5,-40 }, glm::vec3{ 5,6,-40 }, glm::vec3{ 0.5,0.2,0.7 }, glm::vec3{ 0.2, 0.4, 0.2 }, glm::vec3{ 0.1, 0.1, 0.2 }, 0.5);
+
+	//place sphere objects in the vector
+	triangle.emplace_back(triangle1);
+
+
+	//---------------------------------------------------Creating Plane Object----------------------------------------------
+	Plane plane(glm::vec3{ 0,1,0 }, glm::vec3{ 0,-5,0 }, glm::vec3{ 0.8,0.8,0.8 }, glm::vec3{ 0.1,0.1,0.1 },
+		glm::vec3{ 0.7,0.7,0.7 }, 6);
+	
+	planes.emplace_back(plane);
+
+	//----------------------------------------------Creating the Light Object---------------------------------------------
+	Light light(glm::vec3{ 15, 12, -3 }, glm::vec3{ 0.3, 0.9, 0.9 });
+
+	lights.emplace_back(light);
+	*/
+	//-----------------------------------------add all objects in the main vector--------------------------------------
+	//objects.emplace_back(camera);
+	//objects.emplace_back(sphere);
+	//objects.emplace_back(triangle);
+	//objects.emplace_back(planes);
+	//objects.emplace_back(lights);
+}
