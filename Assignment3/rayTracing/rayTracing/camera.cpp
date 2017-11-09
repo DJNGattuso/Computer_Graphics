@@ -52,7 +52,7 @@ float Camera::getHeight() {
 Raytray Camera::rayPixel(int i, int j)
 {
 	//auto pixel = getPixel(i, j);
-	glm::vec3 pixel{ i,j, 0 };
+	glm::vec3 pixel{ i,j, 1 };
 	glm::vec3 direction = pixel - position;
 	glm::vec3 normDirection = glm::normalize(direction);
 	return Raytray(pixel, normDirection);

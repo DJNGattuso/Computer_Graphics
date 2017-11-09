@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "Sphere.h"
 #include "Raytracing.h"
+#include <math.h>
 using namespace std;
 
 int main()
@@ -42,15 +43,21 @@ int main()
 	//NEED TO DO
 	//Go through each pixel in the image -> make a loop throughout the image, for every pixel do the following:
 	float imageWidth = camera.getWidth(); float imageHeight = camera.getHeight();
-	
+	float aspectRatio = imageWidth / imageHeight;
 	glm::vec3 camPos = camera.getPosition();
 	
 	for (int h = 0; h <= imageHeight - 1; h++) //loop through every height column
 	{
 		for (int w = 0; w <= imageWidth - 1; w++) //loop through every width row
 		{
+			//get Camera space
+			float pX = (2 * ((w + 0.5) / imageWidth) - 1) * tan((camera.getFOV()) / 2 * 3.14159 / 180) * aspectRatio;
+			float pY = (1 - 2 * ((h + 0.5) / imageHeight)) * tan((camera.getFOV()) / 2 * 3.14159 / 180);
+			glm::vec3 rayDirection = glm::vec3{ pX, pY, -1 } - camera.getPosition();
+			rayDirection = glm::normalize(rayDirection);
+
 			//get a ray
-			Raytray ray = camera.rayPixel(w, h); //ray receives the point (w,h) and the direction
+			//Raytray ray = camera.rayPixel(w, h); //ray receives the point (w,h) and the direction
 
 			//calculate distance to know how far to check
 			//glm::vec2 distance{(w - camPos.x), (h - camPos.y)};
@@ -58,7 +65,9 @@ int main()
 
 			glm::vec3 colour{ 1.0, 1.0, 1.0 };
 			//toss ray and check for intersection
-			if (sphere1.sphereInter(ray.getOri(), ray.getDi()))
+			bool sphere1Inter = sphere1.sphereInter(camera.getPosition(), rayDirection);
+			bool sphere2Inter = sphere2.sphereInter(camera.getPosition(), rayDirection);
+			if (s && sphere1.sphereInter(camera.getPosition(), rayDirection)
 			{
 				colour = sphere1.getAmbient();
 			}
