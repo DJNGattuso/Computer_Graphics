@@ -2,17 +2,18 @@
 #include "Plane.h"
 #include <iostream>
 
-Plane::Plane(glm::vec3 n, glm::vec3 pos, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 spe, float shine)
+Plane::Plane(glm::vec3 n, glm::vec3 pos, glm::vec3 amb, glm::vec3 diffuse, glm::vec3 spe, float shine)
 	: Objprim(ambient, diffuse, spe, shine)
 {
 	position = pos;
 	nor = n;
+	ambient = amb;
 }
 
 //------------------------Getters------------------------
 glm::vec3 Plane::getNOR() { return nor; }
 glm::vec3 Plane::getPosition() { return position; }
-glm::vec3 Plane::getAmbient() { return Objprim::getAmbient(); }
+glm::vec3 Plane::getAmbient() { return ambient; }
 float Plane::getInterDis() { return intersectDis; }
 
 
@@ -21,7 +22,6 @@ bool Plane::planeInter(glm::vec3 n, glm::vec3 worldOri, glm::vec3 rayOri, glm::v
 {
 	
 	n = glm::normalize(n);
-	direction = glm::normalize(direction);
 
 	float denom = glm::dot(n, direction);
 	if (denom > 1e-6) 

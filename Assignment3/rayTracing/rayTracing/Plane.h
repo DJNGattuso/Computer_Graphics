@@ -22,6 +22,7 @@ public:
 private:
 	glm::vec3 nor;
 	glm::vec3 position;
+	glm::vec3 ambient;
 	float intersectDis;
 };
 
