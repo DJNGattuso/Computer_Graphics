@@ -118,6 +118,7 @@
     <ClCompile Include="raytracing.cpp" />
     <ClCompile Include="sceneLoader.cpp" />
     <ClCompile Include="sphere.cpp" />
+    <ClCompile Include="triangles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -127,6 +128,7 @@
     <ClInclude Include="Raytracing.h" />
     <ClInclude Include="sceneLoader.h" />
     <ClInclude Include="Sphere.h" />
+    <ClInclude Include="Triangles.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

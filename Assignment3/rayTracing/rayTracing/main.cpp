@@ -1,5 +1,7 @@
 //Nicholas Gattuso 40007087
-//referenced to and modified from-https://github.com/wishedeom/COMP371_A3/tree/master/COMP371_A3
+//referenced to-https://github.com/wishedeom/COMP371_A3/tree/master/COMP371_A3
+//and from-https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
+
 
 #include <iostream>
 #include <vector>
@@ -33,6 +35,7 @@ int main()
 	Sphere sphere2(glm::vec3{ 0,3,-40 }, 3, glm::vec3{ 0.3, 0.15, 0.2 }, glm::vec3{ 0.1, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.2 }, 1);
 	Sphere sphere3(glm::vec3{ 0, -3, -40 }, 5, glm::vec3{ 0.1, 0.15, 0.7 }, glm::vec3{ 0.8, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.8 }, 1);
 	
+	//place sphere objects in a vector
 	std::vector<Sphere> sphereObjects;
 	sphereObjects.emplace_back(sphere1);
 	sphereObjects.emplace_back(sphere2);
@@ -94,9 +97,6 @@ int main()
 		}
 	}
 
-	//toss the ray using raytray.getPoint
-	//check if there's an intersection
-	//set the colour of the pixel
 
 	//-------------------------------------------------Save image---------------------------------------------------------
 	//Save out the image in BMP format. Pixel values must be in the range [0,255]
