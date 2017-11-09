@@ -24,7 +24,7 @@ bool Plane::planeInter(glm::vec3 n, glm::vec3 worldOri, glm::vec3 rayOri, glm::v
 	n = glm::normalize(n);
 
 	float denom = glm::dot(n, direction);
-	if (denom > 1e-6) 
+	if (abs(denom) > 1e-6) 
 	{
 		glm::vec3 p0l0 = worldOri - rayOri;
 		intersectDis = glm::dot(p0l0, n) / denom;
