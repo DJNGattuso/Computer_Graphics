@@ -61,7 +61,10 @@ int main()
 
 	//----------------------------------------------Creating the Light Object---------------------------------------------
 	Light light(glm::vec3{ 15, 12, -3 }, glm::vec3{ 0.3, 0.9, 0.9 });
-
+	
+	//place light in vector
+	std::vector<Light> lightObjects;
+	lightObjects.emplace_back(light);
 
 	//NEED TO DO
 	//Add the other objects (triangles, objs, plane, light)
@@ -79,6 +82,9 @@ int main()
 	glm::vec3 camPos = camera.getPosition();
 	
 	//bool sphereIntersect = false; bool triIntersect = false; bool planeInter = false;
+
+	//------------------------------------Send rays, calculate intersections, get pixel colour---------------------------------
+	int intersectedObject = 0;
 	for (int h = 0; h <= imageHeight - 1; h++) //loop through every height column
 	{
 		for (int w = 0; w <= imageWidth - 1; w++) //loop through every width row
@@ -87,6 +93,9 @@ int main()
 			sphereIntersect = false;
 			triIntersect = false;
 			planeInter = false;
+			
+			//reset intersectedObject
+			intersectedObject = 0;
 
 			//get Camera space
 			float pX = (2 * ((w + 0.5) / imageWidth) - 1) * tan((camera.getFOV()) / 2 * 3.14159 / 180) * aspectRatio;
@@ -144,11 +153,11 @@ int main()
 			{
 				if (nearestSphere <= nearestTri) //case if sphere is nearest
 				{
-					if (nearestSphere <= plane.getInterDis()) { colour = sphereObjects[nearestSphereIndex].getAmbient(); }
+					if (nearestSphere <= plane.getInterDis()) { intersectedObject = 1; }
 				}
 				else if (nearestTri <= nearestSphere) //case if triangle is nearest
 				{
-					if (nearestTri <= plane.getInterDis()){ colour = triangleObjects[nearestTriIndex].getAmbient(); }
+					if (nearestTri <= plane.getInterDis()) { intersectedObject = 2; }
 				}
 				else { colour = plane.getAmbient(); }
 			}
@@ -157,9 +166,9 @@ int main()
 			{
 				if (nearestTri <= nearestSphere) //case if sphere is nearest
 				{
-					colour = sphereObjects[nearestSphereIndex].getAmbient();
+					intersectedObject = 1;
 				}
-				else { colour = triangleObjects[nearestTriIndex].getAmbient(); }
+				else { intersectedObject = 2; }
 			}
 			//-------if only tri and plane are intersected-------------
 			else if (triIntersect && planeInter)
@@ -168,7 +177,7 @@ int main()
 				{
 					colour = plane.getAmbient();
 				}
-				else { colour = triangleObjects[nearestTriIndex].getAmbient(); }
+				else { intersectedObject = 2; }
 			}
 			//-------if only sphere and plane are intersected---------
 			else if (sphereIntersect && planeInter)
@@ -177,17 +186,38 @@ int main()
 				{
 					colour = plane.getAmbient();
 				}
-				else { colour = sphereObjects[nearestSphereIndex].getAmbient(); }
+				else { intersectedObject = 1; }
 			}
 			//---------only 1 intersection occured-------
-			else if (triIntersect){ colour = triangleObjects[nearestTriIndex].getAmbient(); }
-			else if (sphereIntersect) { colour = sphereObjects[nearestSphereIndex].getAmbient(); }
+			else if (triIntersect) { intersectedObject = 2; }
+			else if (sphereIntersect) { intersectedObject = 1; }
 			else if (planeInter){ colour = plane.getAmbient();}
+			//------------no intersections------------
+			else {colour = { 0.0, 0.0, 0.0 };}
 
+			//-------------------------------Set the shadow and lights to determnine the colour------------------------------
+			for (int i = 0; i <= lightObjects.size() - 1; i++)
+			{
+				if (sphereIntersect || triIntersect) //an intersection occured
+				{
+					if (intersectedObject == 1) //sphere
+					{
+						colour += sphereObjects[nearestSphereIndex].getAmbient();
+						colour += sphereObjects[nearestSphereIndex].sphereLight(lightObjects[i].getPosition(), rayDirection, lightObjects[i].getColour());
+					}
+					else if (intersectedObject == 2) //triangle
+					{
+						colour = triangleObjects[nearestTriIndex].getAmbient();
+					}
+				}
+			}
+			
 			//Store the colour of the pixel
 			float color[3]{ colour.x, colour.y, colour.z };
 			image.draw_point(w, h, color);
 		}
+
+
 	}
 
 
