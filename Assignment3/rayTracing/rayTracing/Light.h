@@ -2,7 +2,6 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "objectPrim.h"
 #include </Users/Nicholas/Programming/Computer_Graphics/Assignment3/rayTracing/glm/glm.hpp>
 
 class Light

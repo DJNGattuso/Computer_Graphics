@@ -27,13 +27,7 @@
     <ClCompile Include="sphere.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="objprim.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="raytracing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="intersect.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="triangles.cpp">
@@ -59,13 +53,7 @@
     <ClInclude Include="Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="objectPrim.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Raytracing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Intersect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Triangles.h">
