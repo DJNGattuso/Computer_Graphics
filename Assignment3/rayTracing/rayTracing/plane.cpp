@@ -2,12 +2,14 @@
 #include "Plane.h"
 #include <iostream>
 
-Plane::Plane(glm::vec3 n, glm::vec3 pos, glm::vec3 amb, glm::vec3 diffuse, glm::vec3 spe, float shine)
-	: Objprim(ambient, diffuse, spe, shine)
+Plane::Plane(glm::vec3 n, glm::vec3 pos, glm::vec3 amb, glm::vec3 dif, glm::vec3 spe, float shini)
 {
 	position = pos;
 	nor = n;
 	ambient = amb;
+	diffuse = dif;
+	specular = spe;
+	shine = shini;
 }
 
 //------------------------Getters------------------------

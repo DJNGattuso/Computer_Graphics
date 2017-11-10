@@ -15,7 +15,7 @@ Sphere::Sphere( glm::vec3 cent, float rad, glm::vec3 amb, glm::vec3 dif, glm::ve
 //------------------------Getters------------------------
 glm::vec3 Sphere::getCenter() { return center; }
 float Sphere::getRadius() { return radius; }
-glm::vec3 Sphere::getAmbient() { return Objprim::getAmbient(); }
+glm::vec3 Sphere::getAmbient() { return ambient; }
 float Sphere::getInterDis() { return intersectDis; }
 
 

@@ -151,11 +151,11 @@ int main()
 			//----------if all three objects are intersected------------------
 			if (triIntersect && sphereIntersect && planeInter)
 			{
-				if (nearestSphere <= nearestTri) //case if sphere is nearest
+				if (nearestTri <= nearestSphere) //case if sphere is nearest
 				{
 					if (nearestSphere <= plane.getInterDis()) { intersectedObject = 1; }
 				}
-				else if (nearestTri <= nearestSphere) //case if triangle is nearest
+				else if (nearestSphere <= nearestTri) //case if triangle is nearest
 				{
 					if (nearestTri <= plane.getInterDis()) { intersectedObject = 2; }
 				}
@@ -164,7 +164,7 @@ int main()
 			//-------if only tri and sphere are intersected------------
 			else if (triIntersect && sphereIntersect)
 			{
-				if (nearestTri <= nearestSphere) //case if sphere is nearest
+				if (nearestSphere <= nearestTri) //case if sphere is nearest
 				{
 					intersectedObject = 1;
 				}
@@ -207,7 +207,8 @@ int main()
 					}
 					else if (intersectedObject == 2) //triangle
 					{
-						colour = triangleObjects[nearestTriIndex].getAmbient();
+						colour += triangleObjects[nearestTriIndex].getAmbient();
+						colour += triangleObjects[nearestTriIndex].triLight(lightObjects[i].getPosition(), rayDirection, lightObjects[i].getColour());
 					}
 				}
 			}
