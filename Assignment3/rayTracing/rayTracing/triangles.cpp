@@ -51,6 +51,7 @@ bool Triangle::triInter(glm::vec3 orig, glm::vec3 dir, glm::vec3 v1, glm::vec3 v
 	return true;
 }
 
+//assistance by daniel pri
 glm::vec3 Triangle::triLight(glm::vec3 lightPosition, glm::vec3 direction, glm::vec3 lightColour)
 {
 	glm::vec3 normal = glm::normalize(glm::cross((vertex2 - vertex1), (vertex3 - vertex1)));

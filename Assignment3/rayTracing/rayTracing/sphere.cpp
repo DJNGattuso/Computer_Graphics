@@ -45,6 +45,7 @@ bool Sphere::sphereInter(glm::vec3 rayPoint, glm::vec3 direction)
 	return true;
 }
 
+//referenced by Daniel Pri
 glm::vec3 Sphere::sphereLight(glm::vec3 lightPosition, glm::vec3 direction, glm::vec3 lightColour)
 {
 	glm::vec3 normal = glm::normalize(center - intersectPoint);
