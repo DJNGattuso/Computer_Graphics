@@ -251,7 +251,7 @@ int main()
 					//check for triangles
 					for (int i = 0; i <= triangleObjects.size() -1 ; i++) 
 					{
-						if (triangleObjects[i].triInter(nearestPoint + (0.0001f*lightRayDirection), lightRayDirection)) {
+						if (triangleObjects[i].triInter(nearestPoint + (b*lightRayDirection), lightRayDirection)) {
 							shadowIntersect = true;
 						}
 					}
