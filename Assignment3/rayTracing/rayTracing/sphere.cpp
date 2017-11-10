@@ -17,6 +17,7 @@ glm::vec3 Sphere::getCenter() { return center; }
 float Sphere::getRadius() { return radius; }
 glm::vec3 Sphere::getAmbient() { return ambient; }
 float Sphere::getInterDis() { return intersectDis; }
+glm::vec3 Sphere::getNearest() { return intersectPoint; }
 
 
 //from-https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection

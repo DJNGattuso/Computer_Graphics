@@ -17,14 +17,15 @@ glm::vec3 Triangle::getVertex2() { return vertex2; }
 glm::vec3 Triangle::getVertex3() { return vertex3; }
 glm::vec3 Triangle::getAmbient() { return ambient; }
 float Triangle::getInterDis() { return intersectDis; }
+glm::vec3 Triangle::getNearest() { return intersectPoint; }
 
 
 //applying Möller-Trumbore 
 //referenced to-https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
-bool Triangle::triInter(glm::vec3 orig, glm::vec3 dir, glm::vec3 v1, glm::vec3 v2, glm::vec3 v3)
+bool Triangle::triInter(glm::vec3 orig, glm::vec3 dir)
 {
-	glm::vec3 v1v2 = v2 - v1;
-	glm::vec3 v1v3 = v3 - v1;
+	glm::vec3 v1v2 = vertex2 - vertex1;
+	glm::vec3 v1v3 = vertex3 - vertex1;
 	glm::vec3 pvec = glm::cross(dir,v1v3);
 	float det = glm::dot(v1v2,pvec);
 
@@ -38,7 +39,7 @@ bool Triangle::triInter(glm::vec3 orig, glm::vec3 dir, glm::vec3 v1, glm::vec3 v
 
 	float invDet = 1 / det;
 
-	glm::vec3 tvec = orig - v1;
+	glm::vec3 tvec = orig - vertex1;
 	float u = glm::dot(tvec,pvec) * invDet;
 	if (u < 0 || u > 1) return false;
 

@@ -9,11 +9,12 @@ class Sphere
 public:
 	Sphere(glm::vec3 center, float radius, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 spe, float shine);
 
-	//Getters and setters
+	//Getters
 	glm::vec3 getCenter();
 	float getRadius();
 	glm::vec3 getAmbient();
 	float getInterDis();
+	glm::vec3 getNearest();
 
 	//Intersection Function
 	bool sphereInter(glm::vec3 rayPoint, glm::vec3 direction);

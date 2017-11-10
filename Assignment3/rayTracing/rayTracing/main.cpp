@@ -84,7 +84,7 @@ int main()
 	//bool sphereIntersect = false; bool triIntersect = false; bool planeInter = false;
 
 	//------------------------------------Send rays, calculate intersections, get pixel colour---------------------------------
-	int intersectedObject = 0;
+	int intersectedObject = 0; glm::vec3 nearestPoint{ 0,0,0 }; bool shadowIntersect = false; float b = (1e-3);
 	for (int h = 0; h <= imageHeight - 1; h++) //loop through every height column
 	{
 		for (int w = 0; w <= imageWidth - 1; w++) //loop through every width row
@@ -93,6 +93,7 @@ int main()
 			sphereIntersect = false;
 			triIntersect = false;
 			planeInter = false;
+			shadowIntersect = false;
 			
 			//reset intersectedObject
 			intersectedObject = 0;
@@ -102,13 +103,6 @@ int main()
 			float pY = (1 - 2 * ((h + 0.5) / imageHeight)) * tan((camera.getFOV()) / 2 * 3.14159 / 180);
 			glm::vec3 rayDirection = glm::vec3{ pX, pY, -1 } - camera.getPosition();
 			rayDirection = glm::normalize(rayDirection);
-
-			//get a ray
-			//Raytray ray = camera.rayPixel(w, h); //ray receives the point (w,h) and the direction
-
-			//calculate distance to know how far to check
-			//glm::vec2 distance{(w - camPos.x), (h - camPos.y)};
-			//float dista = sqrt((distance.x)*(distance.x) + (distance.y)*(distance.y));
 
 			glm::vec3 colour{ 0.0, 0.0, 0.0 };
 
@@ -132,8 +126,7 @@ int main()
 			float nearestTri = 1000000; int nearestTriIndex;
 			for (int i = 0; i <= triangleObjects.size() - 1; i++)
 			{
-				if (triangleObjects[i].triInter(camera.getPosition(), rayDirection, triangleObjects[i].getVertex1(), 
-					triangleObjects[i].getVertex2(), triangleObjects[i].getVertex3())) //if it intersects
+				if (triangleObjects[i].triInter(camera.getPosition(), rayDirection)) //if it intersects
 				{
 					triIntersect = true;
 					if (triangleObjects[i].getInterDis() <= nearestTri)
@@ -153,22 +146,22 @@ int main()
 			{
 				if (nearestTri <= nearestSphere) //case if sphere is nearest
 				{
-					if (nearestSphere <= plane.getInterDis()) { intersectedObject = 1; }
+					if (nearestSphere <= plane.getInterDis()) { intersectedObject = 1; nearestPoint = sphereObjects[nearestSphereIndex].getNearest(); }
 				}
 				else if (nearestSphere <= nearestTri) //case if triangle is nearest
 				{
-					if (nearestTri <= plane.getInterDis()) { intersectedObject = 2; }
+					if (nearestTri <= plane.getInterDis()) { intersectedObject = 2; nearestPoint = triangleObjects[nearestTriIndex].getNearest();}
 				}
-				else { intersectedObject = 3; }
+				else { intersectedObject = 3;}
 			}
 			//-------if only tri and sphere are intersected------------
 			else if (triIntersect && sphereIntersect)
 			{
 				if (nearestSphere <= nearestTri) //case if sphere is nearest
 				{
-					intersectedObject = 1;
+					intersectedObject = 1; nearestPoint = sphereObjects[nearestSphereIndex].getNearest();
 				}
-				else { intersectedObject = 2; }
+				else { intersectedObject = 2; nearestPoint = triangleObjects[nearestTriIndex].getNearest();}
 			}
 			//-------if only tri and plane are intersected-------------
 			else if (triIntersect && planeInter)
@@ -177,7 +170,7 @@ int main()
 				{
 					intersectedObject = 3;
 				}
-				else { intersectedObject = 2; }
+				else { intersectedObject = 2; nearestPoint = triangleObjects[nearestTriIndex].getNearest();}
 			}
 			//-------if only sphere and plane are intersected---------
 			else if (sphereIntersect && planeInter)
@@ -186,11 +179,11 @@ int main()
 				{
 					intersectedObject = 3;
 				}
-				else { intersectedObject = 1; }
+				else { intersectedObject = 1; nearestPoint = sphereObjects[nearestSphereIndex].getNearest();}
 			}
 			//---------only 1 intersection occured-------
-			else if (triIntersect) { intersectedObject = 2; }
-			else if (sphereIntersect) { intersectedObject = 1; }
+			else if (triIntersect) { intersectedObject = 2; nearestPoint = triangleObjects[nearestTriIndex].getNearest();}
+			else if (sphereIntersect) { intersectedObject = 1; nearestPoint = sphereObjects[nearestSphereIndex].getNearest();}
 			else if (planeInter) { intersectedObject = 3; }
 			//------------no intersections------------
 			else {colour = { 0.0, 0.0, 0.0 };}
@@ -198,17 +191,47 @@ int main()
 			//-------------------------------Set the shadow and lights to determnine the colour------------------------------
 			for (int i = 0; i <= lightObjects.size() - 1; i++)
 			{
+				shadowIntersect = false;
+				//--------------check if theres a shadow----------------
+				if (intersectedObject != 0) 
+				{
+					glm::vec3 lightRayDirection = glm::normalize(lightObjects[i].getPosition() - nearestPoint);
+
+					//check if spheres
+					for (int i = 0; i <= sphereObjects.size() -1 ; i++) 
+					{
+						if (sphereObjects[i].sphereInter(nearestPoint + (b*lightRayDirection), lightRayDirection)) {
+							shadowIntersect = true;
+						}
+					}
+
+					//check for triangles in the way
+					for (int i = 0; i <= triangleObjects.size() -1 ; i++) 
+					{
+						if (triangleObjects[i].triInter(nearestPoint + (0.0001f*lightRayDirection), lightRayDirection)) {
+							shadowIntersect = true;
+						}
+					}
+				}
+
+				//------calculate colour of pixel based on the light and shadow---------
 				if (sphereIntersect || triIntersect || planeInter) //an intersection occured
 				{
 					if (intersectedObject == 1) //sphere
 					{
 						colour += sphereObjects[nearestSphereIndex].getAmbient();
-						colour += sphereObjects[nearestSphereIndex].sphereLight(lightObjects[i].getPosition(), rayDirection, lightObjects[i].getColour());
+						if (!shadowIntersect)
+						{
+							colour += sphereObjects[nearestSphereIndex].sphereLight(lightObjects[i].getPosition(), rayDirection, lightObjects[i].getColour());
+						}
+						
 					}
 					else if (intersectedObject == 2) //triangle
 					{
 						colour += triangleObjects[nearestTriIndex].getAmbient();
-						colour += triangleObjects[nearestTriIndex].triLight(lightObjects[i].getPosition(), rayDirection, lightObjects[i].getColour());
+						if (!shadowIntersect) {
+							colour += triangleObjects[nearestTriIndex].triLight(lightObjects[i].getPosition(), rayDirection, lightObjects[i].getColour());
+						}
 					}
 					else if (intersectedObject == 3) //plane
 					{
