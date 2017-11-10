@@ -159,7 +159,7 @@ int main()
 				{
 					if (nearestTri <= plane.getInterDis()) { intersectedObject = 2; }
 				}
-				else { colour = plane.getAmbient(); }
+				else { intersectedObject = 3; }
 			}
 			//-------if only tri and sphere are intersected------------
 			else if (triIntersect && sphereIntersect)
@@ -175,7 +175,7 @@ int main()
 			{
 				if (plane.getInterDis() <= nearestTri) //case if plane is nearest
 				{
-					colour = plane.getAmbient();
+					intersectedObject = 3;
 				}
 				else { intersectedObject = 2; }
 			}
@@ -184,21 +184,21 @@ int main()
 			{
 				if (plane.getInterDis() <= nearestSphere) //case if plane is nearest
 				{
-					colour = plane.getAmbient();
+					intersectedObject = 3;
 				}
 				else { intersectedObject = 1; }
 			}
 			//---------only 1 intersection occured-------
 			else if (triIntersect) { intersectedObject = 2; }
 			else if (sphereIntersect) { intersectedObject = 1; }
-			else if (planeInter){ colour = plane.getAmbient();}
+			else if (planeInter) { intersectedObject = 3; }
 			//------------no intersections------------
 			else {colour = { 0.0, 0.0, 0.0 };}
 
 			//-------------------------------Set the shadow and lights to determnine the colour------------------------------
 			for (int i = 0; i <= lightObjects.size() - 1; i++)
 			{
-				if (sphereIntersect || triIntersect) //an intersection occured
+				if (sphereIntersect || triIntersect || planeInter) //an intersection occured
 				{
 					if (intersectedObject == 1) //sphere
 					{
@@ -209,6 +209,11 @@ int main()
 					{
 						colour += triangleObjects[nearestTriIndex].getAmbient();
 						colour += triangleObjects[nearestTriIndex].triLight(lightObjects[i].getPosition(), rayDirection, lightObjects[i].getColour());
+					}
+					else if (intersectedObject == 3) //plane
+					{
+						colour += plane.getAmbient();
+						colour += plane.planeLight(lightObjects[i].getPosition(), rayDirection, lightObjects[i].getColour());
 					}
 				}
 			}
