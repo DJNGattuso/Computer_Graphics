@@ -7,6 +7,7 @@
 int Camera::pixelWidth = 800;
 int Camera::pixelHeight = 800;
 
+Camera::Camera() {}
 Camera::Camera(glm::vec3 pos, int FOV, int F, double A)
 {
 	position = pos;

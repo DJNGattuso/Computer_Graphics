@@ -8,6 +8,7 @@
 class Plane 
 {
 public:
+	Plane();
 	Plane(glm::vec3 nor, glm::vec3 position, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 spe, float shine);
 
 	//Getters and setters

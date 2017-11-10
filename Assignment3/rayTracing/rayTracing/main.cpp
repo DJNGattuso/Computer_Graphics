@@ -16,7 +16,79 @@
 #include "Light.h"
 
 using namespace std;
+Camera camera;
+std::vector<Sphere> sphereObjects;
+std::vector<Triangle> triangleObjects;
+Plane plane;
+std::vector<Light> lightObjects;
 
+void build1()
+{
+	//-----------------------------------------Create camera object and image space-------------------------------------------------
+	Camera cam(glm::vec3{ 0,0,0 }, 60, 1000, 1.33);
+	camera = cam;
+
+	//----------------------------------------------Create Sphere Object------------------------------------------------------------
+	Sphere sphere1(glm::vec3{ 0,6,-40 }, 2, glm::vec3{ 0.1,0.5,0.5 }, glm::vec3{ 0.4, 0.6, 0.2 }, glm::vec3{ 0.2, 0.5, 0.5 }, 1);
+	Sphere sphere2(glm::vec3{ 0,3,-40 }, 3, glm::vec3{ 0.3, 0.15, 0.2 }, glm::vec3{ 0.1, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.2 }, 1);
+	Sphere sphere3(glm::vec3{ 0, -3, -40 }, 5, glm::vec3{ 0.1, 0.15, 0.7 }, glm::vec3{ 0.8, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.8 }, 1);
+
+	//place sphere objects in a vector
+	sphereObjects.emplace_back(sphere1);
+	sphereObjects.emplace_back(sphere2);
+	sphereObjects.emplace_back(sphere3);
+
+	bool sphereIntersect = false;
+
+	//----------------------------------------------Create Triangle Object------------------------------------------------------------
+	Triangle triangle1(glm::vec3{ 1,7,-40 }, glm::vec3{ 1,5,-40 }, glm::vec3{ 5,6,-40 }, glm::vec3{ 0.5,0.2,0.7 }, glm::vec3{ 0.2, 0.4, 0.2 }, glm::vec3{ 0.1, 0.1, 0.2 }, 0.5);
+
+	//place sphere objects in a vector
+	triangleObjects.emplace_back(triangle1);
+
+	bool triIntersect = false;
+
+	//---------------------------------------------------Creating Plane Object----------------------------------------------
+	Plane pla(glm::vec3{ 0,1,0 }, glm::vec3{ 0,-5,0 }, glm::vec3{ 0.8,0.8,0.8 }, glm::vec3{ 0.1,0.1,0.1 },
+		glm::vec3{ 0.7,0.7,0.7 }, 6);
+	bool planeInter = false;
+
+	plane = pla;
+
+	//----------------------------------------------Creating the Light Object---------------------------------------------
+	Light light(glm::vec3{ 15, 12, -3 }, glm::vec3{ 0.3, 0.9, 0.9 });
+
+	//place light in vector
+	lightObjects.emplace_back(light);
+}
+void build4()
+{
+	//-----------------------------------------Create camera object and image space-------------------------------------------------
+	Camera cam(glm::vec3{ 0,0,0 }, 60, 700, 1.5);
+	camera = cam;
+
+	//----------------------------------------------Create Triangle Object------------------------------------------------------------
+	Triangle triangle1(glm::vec3{ -15,20,-35 }, glm::vec3{ -15,0,-35 }, glm::vec3{ 10,10,-20 }, glm::vec3{ 0.1,0.1,0.1 }, glm::vec3{ 0.2, 0.6, 0.4 }, glm::vec3{ 0.2, 0.1, 0.4 }, 4);
+	Triangle triangle2(glm::vec3{ -10,10,-25 }, glm::vec3{ 15,0,-35 }, glm::vec3{ 15,20,-35 }, glm::vec3{ 0.1,0.1,0.1 }, glm::vec3{ 0.2, 0.15, 0.4 }, glm::vec3{ 0.2, 0.1, 0.4 }, 4);
+
+	
+	//place sphere objects in a vector
+	triangleObjects.emplace_back(triangle1);
+	triangleObjects.emplace_back(triangle2);
+
+
+	//---------------------------------------------------Creating Plane Object----------------------------------------------
+	Plane pla(glm::vec3{ 0,1,0 }, glm::vec3{ 0,-5,0 }, glm::vec3{ 0.2,0.1,0.7 }, glm::vec3{ 0.3,0.2,0.3 },
+		glm::vec3{ 0.5,0.2,0.2 }, 6);
+
+	plane = pla;
+
+	//----------------------------------------------Creating the Light Object---------------------------------------------
+	Light light(glm::vec3{ 0, 10, -15 }, glm::vec3{ 0.9, 0.9, 0.9 });
+
+	//place light in vector
+	lightObjects.emplace_back(light);
+}
 int main()
 {
 	cout << "main program for ray tracing" << endl;
@@ -29,42 +101,8 @@ int main()
 	else { cout << "Read failed" << endl; }
 
 	//must add fetching of variables from scene instead of hardcoding it
-	//-----------------------------------------Create camera object and image space-------------------------------------------------
-	Camera camera(glm::vec3{ 0,0,0 }, 60, 1000, 1.33);
-
-	//----------------------------------------------Create Sphere Object------------------------------------------------------------
-	Sphere sphere1(glm::vec3{ 0,6,-40 }, 2, glm::vec3{ 0.1,0.5,0.5 }, glm::vec3{ 0.4, 0.6, 0.2 }, glm::vec3{ 0.2, 0.5, 0.5 }, 1);
-	Sphere sphere2(glm::vec3{ 0,3,-40 }, 3, glm::vec3{ 0.3, 0.15, 0.2 }, glm::vec3{ 0.1, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.2 }, 1);
-	Sphere sphere3(glm::vec3{ 0, -3, -40 }, 5, glm::vec3{ 0.1, 0.15, 0.7 }, glm::vec3{ 0.8, 0.22, 0.29 }, glm::vec3{ 0.2, 0.7, 0.8 }, 1);
-	
-	//place sphere objects in a vector
-	std::vector<Sphere> sphereObjects;
-	sphereObjects.emplace_back(sphere1);
-	sphereObjects.emplace_back(sphere2);
-	sphereObjects.emplace_back(sphere3);
-
-	bool sphereIntersect = false;
-
-	//----------------------------------------------Create Triangle Object------------------------------------------------------------
-	Triangle triangle1(glm::vec3{ 1,7,-40 }, glm::vec3{ 1,5,-40 }, glm::vec3{ 5,6,-40 }, glm::vec3{ 0.5,0.2,0.7 }, glm::vec3{ 0.2, 0.4, 0.2 }, glm::vec3{ 0.1, 0.1, 0.2 }, 0.5);
-	
-	//place sphere objects in a vector
-	std::vector<Triangle> triangleObjects;
-	triangleObjects.emplace_back(triangle1);
-
-	bool triIntersect = false;
-
-	//---------------------------------------------------Creating Plane Object----------------------------------------------
-	Plane plane(glm::vec3{ 0,1,0 }, glm::vec3{ 0,-5,0 }, glm::vec3{ 0.8,0.8,0.8 }, glm::vec3{ 0.1,0.1,0.1 },
-		glm::vec3{ 0.7,0.7,0.7 }, 6);
-	bool planeInter = false;
-
-	//----------------------------------------------Creating the Light Object---------------------------------------------
-	Light light(glm::vec3{ 15, 12, -3 }, glm::vec3{ 0.3, 0.9, 0.9 });
-	
-	//place light in vector
-	std::vector<Light> lightObjects;
-	lightObjects.emplace_back(light);
+	//build1();
+	build4();
 
 	//NEED TO DO
 	//Add the other objects (triangles, objs, plane, light)
@@ -81,10 +119,11 @@ int main()
 	float aspectRatio = imageWidth / imageHeight;
 	glm::vec3 camPos = camera.getPosition();
 	
-	//bool sphereIntersect = false; bool triIntersect = false; bool planeInter = false;
 
 	//------------------------------------Send rays, calculate intersections, get pixel colour---------------------------------
 	int intersectedObject = 0; glm::vec3 nearestPoint{ 0,0,0 }; bool shadowIntersect = false; float b = (1e-3);
+	bool sphereIntersect = false; bool triIntersect = false; bool planeInter = false;
+
 	for (int h = 0; h <= imageHeight - 1; h++) //loop through every height column
 	{
 		for (int w = 0; w <= imageWidth - 1; w++) //loop through every width row
@@ -109,15 +148,17 @@ int main()
 			//-------toss ray and check for intersection-----
 			//for spheres
 			float nearestSphere = 1000000; int nearestSphereIndex;
-			for (int i = 0; i <= sphereObjects.size() - 1; i++)
-			{
-				if (sphereObjects[i].sphereInter(camera.getPosition(), rayDirection)) //if it intersects
+			if (sphereObjects.size() != 0) {
+				for (int i = 0; i <= sphereObjects.size() - 1; i++)
 				{
-					sphereIntersect = true;
-					if (sphereObjects[i].getInterDis() <= nearestSphere)
+					if (sphereObjects[i].sphereInter(camera.getPosition(), rayDirection)) //if it intersects
 					{
-						nearestSphere = sphereObjects[i].getInterDis();
-						nearestSphereIndex = i;
+						sphereIntersect = true;
+						if (sphereObjects[i].getInterDis() <= nearestSphere)
+						{
+							nearestSphere = sphereObjects[i].getInterDis();
+							nearestSphereIndex = i;
+						}
 					}
 				}
 			}
@@ -198,10 +239,12 @@ int main()
 					glm::vec3 lightRayDirection = glm::normalize(lightObjects[i].getPosition() - nearestPoint);
 
 					//check if spheres
-					for (int i = 0; i <= sphereObjects.size() -1 ; i++) 
-					{
-						if (sphereObjects[i].sphereInter(nearestPoint + (b*lightRayDirection), lightRayDirection)) {
-							shadowIntersect = true;
+					if (sphereObjects.size() != 0) {
+						for (int i = 0; i <= sphereObjects.size() - 1; i++)
+						{
+							if (sphereObjects[i].sphereInter(nearestPoint + (b*lightRayDirection), lightRayDirection)) {
+								shadowIntersect = true;
+							}
 						}
 					}
 

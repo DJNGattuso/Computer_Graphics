@@ -14,6 +14,7 @@ public:
 	static int pixelHeight;
 
 	//constructor
+	Camera();
 	Camera(glm::vec3 pos, int FOV, int F, double A);
 
 	//getters
