@@ -205,7 +205,7 @@ int main()
 						}
 					}
 
-					//check for triangles in the way
+					//check for triangles
 					for (int i = 0; i <= triangleObjects.size() -1 ; i++) 
 					{
 						if (triangleObjects[i].triInter(nearestPoint + (0.0001f*lightRayDirection), lightRayDirection)) {
@@ -236,7 +236,9 @@ int main()
 					else if (intersectedObject == 3) //plane
 					{
 						colour += plane.getAmbient();
-						colour += plane.planeLight(lightObjects[i].getPosition(), rayDirection, lightObjects[i].getColour());
+						if (!shadowIntersect) {
+							colour += plane.planeLight(lightObjects[i].getPosition(), rayDirection, lightObjects[i].getColour());
+						}
 					}
 				}
 			}
